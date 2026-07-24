@@ -55,32 +55,21 @@ module configuration.
 
 ## Installation
 
-1. Copy the module into your shop:
+**No Composer, no command line.** Install it like any other PrestaShop module:
 
-   ```bash
-   git clone https://github.com/GajewskiMarcin/FeedForge.git
-   # place the inner `feedforge/` folder into your shop's modules/ directory
-   ```
+1. Download the latest **`feedforge.zip`** from the
+   [**Releases**](https://github.com/GajewskiMarcin/FeedForge/releases) page.
+   The release archive already bundles every PHP dependency (`vendor/`), so
+   there is nothing to build or install by hand.
+2. In your PrestaShop back office go to **Modules → Module Manager →
+   Upload a module**, choose the ZIP, and let PrestaShop install it.
+3. Open **Feed Forge** (under the *Secret Sauce* menu group) and follow the
+   configuration steps below.
 
-   The module lives in the [`feedforge/`](feedforge/) subfolder of this
-   repository. Make sure the installed folder is named exactly `feedforge`.
-
-2. Install PHP dependencies (the `vendor/` directory is not committed):
-
-   ```bash
-   cd modules/feedforge
-   composer install --no-dev
-   ```
-
-3. Install the module from the PrestaShop back office
-   (**Modules → Module Manager**), or via CLI:
-
-   ```bash
-   php bin/console prestashop:module install feedforge
-   ```
-
-4. Open **Feed Forge** in the back office (under the *Secret Sauce* menu group)
-   and complete the setup below.
+> ⚠️ **Do not** use the green **Code → Download ZIP** button on this page.
+> That archive contains the source only — it is **missing the `vendor/`
+> folder**, so the module will not run. Always install from a
+> [**Release**](https://github.com/GajewskiMarcin/FeedForge/releases).
 
 ## Configuration
 
@@ -124,13 +113,25 @@ deadline, so it is safe to call frequently.
 - **OAuth tokens** are encrypted with a key derived from PrestaShop's
   `_COOKIE_KEY_` — no separate secret to manage.
 
-## Development
+## Development / building from source
+
+This repository tracks **source only** — the `vendor/` directory is
+git-ignored, so a `git clone` (or the green *Download ZIP*) is **not**
+directly installable. To work from source you need
+[Composer](https://getcomposer.org/):
 
 ```bash
-cd feedforge
-composer install
-vendor/bin/phpunit          # unit tests (PHPUnit 10)
+git clone https://github.com/GajewskiMarcin/FeedForge.git
+cd FeedForge/feedforge
+composer install          # fetches vendor/ (google/auth, guzzle, …)
+vendor/bin/phpunit        # run the unit tests (PHPUnit 10)
 ```
+
+To produce an installable archive, zip the `feedforge/` folder **with its
+`vendor/` directory included** (excluding `tests/`, `phpunit.xml`,
+`.gitignore`, and `composer.lock`). That self-contained ZIP — around 2 MB — is
+exactly what ships on the [Releases](https://github.com/GajewskiMarcin/FeedForge/releases)
+page.
 
 The module targets PrestaShop 8.0–9.x on PHP 8.1+. See [`feedforge/`](feedforge/)
 for the full source.

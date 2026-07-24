@@ -3,7 +3,7 @@
     <name>feedforge</name>
     <displayName><![CDATA[Feed Forge]]></displayName>
     <version><![CDATA[2.0.2]]></version>
-    <description><![CDATA[Integracja z Google Merchant Center przez Content API for Shopping. Synchronizuj produkty, monitoruj statusy, przeglądaj analitykę.]]></description>
+    <description><![CDATA[Integracja z Google Merchant Center przez Google Merchant API. Synchronizuj produkty, monitoruj statusy, przeglądaj analitykę.]]></description>
     <author><![CDATA[Feed Forge]]></author>
     <tab><![CDATA[advertising_marketing]]></tab>
 	<confirmUninstall><![CDATA[Czy na pewno chcesz odinstalować Feed Forge? Wszystkie dane modułu zostaną usunięte.]]></confirmUninstall>

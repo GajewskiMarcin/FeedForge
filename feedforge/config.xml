@@ -2,8 +2,8 @@
 <module>
     <name>feedforge</name>
     <displayName><![CDATA[Feed Forge]]></displayName>
-    <version><![CDATA[1.1.0]]></version>
-    <description><![CDATA[Google Merchant Center integration via Content API for Shopping. Sync products, monitor statuses, view analytics.]]></description>
+    <version><![CDATA[2.0.2]]></version>
+    <description><![CDATA[Google Merchant Center integration via the Google Merchant API. Sync products, monitor statuses, view analytics.]]></description>
     <author><![CDATA[Feed Forge]]></author>
     <tab><![CDATA[advertising_marketing]]></tab>
 	<confirmUninstall><![CDATA[Are you sure you want to uninstall Feed Forge? All module data will be removed.]]></confirmUninstall>
