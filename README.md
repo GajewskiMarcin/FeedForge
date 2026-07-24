@@ -8,7 +8,7 @@ analytics — all from a clean admin interface inside your back office. No third
 SaaS, no monthly fees: the module talks to Google directly using your own
 OAuth credentials.
 
-> Feed Forge is a free, open‑source module (MIT). If it saves you time, you can
+> Feed Forge is a free, open‑source module (AFL-3.0). If it saves you time, you can
 > support development via the in‑module "Buy me a coffee" link.
 
 ---
@@ -141,4 +141,5 @@ for the full source.
 
 ## License
 
-[MIT](LICENSE) © Feed Forge
+[Academic Free License 3.0 (AFL-3.0)](LICENSE) — the standard license for
+PrestaShop modules. © 2026 Marcin Gajewski (marcingajewski.pl)

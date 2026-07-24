@@ -3,7 +3,7 @@
     "description": "Google Merchant Center integration via Merchant API - PrestaShop 8/9",
     "version": "2.0.2",
     "type": "prestashop-module",
-    "license": "MIT",
+    "license": "AFL-3.0",
     "authors": [
         {
             "name": "Feed Forge"
