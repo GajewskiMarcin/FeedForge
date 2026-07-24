@@ -1,0 +1,190 @@
+services:
+    _defaults:
+        public: true
+        autowire: true
+        autoconfigure: true
+
+    # Controllers
+    FeedForge\Controller\Admin\FeedForgeController:
+        arguments:
+            $psRouter: '@prestashop.router'
+        tags: ['controller.service_arguments']
+
+    FeedForge\Controller\Admin\ApiController:
+        tags: ['controller.service_arguments']
+
+    FeedForge\Controller\Admin\OAuthController:
+        arguments:
+            $googleApiClient: '@FeedForge\Service\GoogleApiClient'
+        tags: ['controller.service_arguments']
+
+    FeedForge\Controller\Admin\CronController:
+        arguments:
+            $syncEngine: '@FeedForge\Service\SyncEngine'
+        tags: ['controller.service_arguments']
+
+    # Services
+    FeedForge\Service\TokenEncryption: ~
+
+    FeedForge\Service\MerchantApiHttpClient:
+        arguments:
+            $tokenEncryption: '@FeedForge\Service\TokenEncryption'
+            $accountRepository: '@FeedForge\Repository\AccountRepository'
+
+    FeedForge\Service\GoogleApiClient:
+        arguments:
+            $tokenEncryption: '@FeedForge\Service\TokenEncryption'
+            $accountRepository: '@FeedForge\Repository\AccountRepository'
+            $http: '@FeedForge\Service\MerchantApiHttpClient'
+
+    FeedForge\Service\ProductService:
+        arguments:
+            $http: '@FeedForge\Service\MerchantApiHttpClient'
+            $apiClient: '@FeedForge\Service\GoogleApiClient'
+            $gmcProductRepository: '@FeedForge\Repository\GmcProductRepository'
+
+    FeedForge\Service\DataSourceService:
+        arguments:
+            $http: '@FeedForge\Service\MerchantApiHttpClient'
+            $apiClient: '@FeedForge\Service\GoogleApiClient'
+            $feedConfigRepository: '@FeedForge\Repository\FeedConfigRepository'
+
+    FeedForge\Service\StatusService:
+        arguments:
+            $http: '@FeedForge\Service\MerchantApiHttpClient'
+            $apiClient: '@FeedForge\Service\GoogleApiClient'
+            $productService: '@FeedForge\Service\ProductService'
+            $productStatusRepository: '@FeedForge\Repository\ProductStatusRepository'
+            $gmcProductRepository: '@FeedForge\Repository\GmcProductRepository'
+            $feedConfigRepository: '@FeedForge\Repository\FeedConfigRepository'
+
+    FeedForge\Service\ReportService:
+        arguments:
+            $http: '@FeedForge\Service\MerchantApiHttpClient'
+            $apiClient: '@FeedForge\Service\GoogleApiClient'
+            $reportCacheRepository: '@FeedForge\Repository\ReportCacheRepository'
+
+    FeedForge\Service\DataMapper:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+            $categoryMapRepository: '@FeedForge\Repository\CategoryMapRepository'
+            $attributeMapRepository: '@FeedForge\Repository\AttributeMapRepository'
+            $feedConfigRepository: '@FeedForge\Repository\FeedConfigRepository'
+            $ruleEngine: '@FeedForge\Service\RuleEngine'
+
+    FeedForge\Service\DeltaDetector:
+        arguments:
+            $dataMapper: '@FeedForge\Service\DataMapper'
+            $gmcProductRepository: '@FeedForge\Repository\GmcProductRepository'
+            $feedConfigRepository: '@FeedForge\Repository\FeedConfigRepository'
+
+    FeedForge\Service\QueueProcessor:
+        arguments:
+            $productService: '@FeedForge\Service\ProductService'
+            $dataSourceService: '@FeedForge\Service\DataSourceService'
+            $googleApiClient: '@FeedForge\Service\GoogleApiClient'
+            $syncQueueRepository: '@FeedForge\Repository\SyncQueueRepository'
+            $gmcProductRepository: '@FeedForge\Repository\GmcProductRepository'
+            $dataMapper: '@FeedForge\Service\DataMapper'
+            $feedConfigRepository: '@FeedForge\Repository\FeedConfigRepository'
+
+    FeedForge\Service\SyncEngine:
+        arguments:
+            $deltaDetector: '@FeedForge\Service\DeltaDetector'
+            $queueProcessor: '@FeedForge\Service\QueueProcessor'
+            $syncQueueRepository: '@FeedForge\Repository\SyncQueueRepository'
+            $syncLogRepository: '@FeedForge\Repository\SyncLogRepository'
+            $gmcProductRepository: '@FeedForge\Repository\GmcProductRepository'
+            $feedConfigRepository: '@FeedForge\Repository\FeedConfigRepository'
+            $googleApiClient: '@FeedForge\Service\GoogleApiClient'
+            $translator: '@translator'
+
+    FeedForge\Service\RuleEngine:
+        arguments:
+            $ruleRepository: '@FeedForge\Repository\RuleRepository'
+
+    FeedForge\Service\TaxonomyService:
+        arguments:
+            $taxonomyRepository: '@FeedForge\Repository\TaxonomyRepository'
+
+    FeedForge\Service\ShippingService:
+        arguments:
+            $http: '@FeedForge\Service\MerchantApiHttpClient'
+            $googleApiClient: '@FeedForge\Service\GoogleApiClient'
+            $feedConfigRepository: '@FeedForge\Repository\FeedConfigRepository'
+            $connection: '@doctrine.dbal.default_connection'
+            $translator: '@translator'
+
+    FeedForge\Service\PromotionService:
+        arguments:
+            $http: '@FeedForge\Service\MerchantApiHttpClient'
+            $googleApiClient: '@FeedForge\Service\GoogleApiClient'
+            $dataSourceService: '@FeedForge\Service\DataSourceService'
+            $promotionRepository: '@FeedForge\Repository\PromotionRepository'
+            $feedConfigRepository: '@FeedForge\Repository\FeedConfigRepository'
+            $connection: '@doctrine.dbal.default_connection'
+            $translator: '@translator'
+
+    FeedForge\Service\ProductFilterCounter:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    # Repositories
+    FeedForge\Repository\AccountRepository:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    FeedForge\Repository\GmcProductRepository:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    FeedForge\Repository\SyncQueueRepository:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    FeedForge\Repository\ProductStatusRepository:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    FeedForge\Repository\CategoryMapRepository:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    FeedForge\Repository\TaxonomyRepository:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    FeedForge\Repository\RuleRepository:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    FeedForge\Repository\ReportCacheRepository:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    FeedForge\Repository\SyncLogRepository:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    FeedForge\Repository\FeedConfigRepository:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    FeedForge\Repository\AttributeMapRepository:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    FeedForge\Repository\PromotionRepository:
+        arguments:
+            $connection: '@doctrine.dbal.default_connection'
+
+    # Event Subscribers
+    FeedForge\EventSubscriber\ProductSubscriber:
+        arguments:
+            $syncQueueRepository: '@FeedForge\Repository\SyncQueueRepository'
+            $gmcProductRepository: '@FeedForge\Repository\GmcProductRepository'
+
+    FeedForge\EventSubscriber\PromotionSubscriber:
+        arguments:
+            $promotionRepository: '@FeedForge\Repository\PromotionRepository'
+            $translator: '@translator'

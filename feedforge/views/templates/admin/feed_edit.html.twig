@@ -1,0 +1,339 @@
+{% extends '@Modules/feedforge/views/templates/admin/layout.html.twig' %}
+
+{% block ff_content %}
+    <input type="hidden" id="ff-feed-id" value="{{ feedId }}">
+
+    <div class="ff-page-header">
+        <p class="ff-page-desc">{{ feedId > 0 ? 'Edit feed'|trans({}, 'Modules.Feedforge.Admin') : 'New feed'|trans({}, 'Modules.Feedforge.Admin') }} — {{ 'feed configuration and product filtering'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+        <div class="ff-page-actions">
+            <a href="javascript:void(0)" class="ff-btn ff-btn--secondary" id="ff-back-to-config">&larr; {{ 'Back to configuration'|trans({}, 'Modules.Feedforge.Admin') }}</a>
+            <button class="ff-btn ff-btn--primary" id="ff-feed-save-btn">{{ 'Save feed'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+        </div>
+    </div>
+
+    {# Live count indicator - sticky bar #}
+    <div class="ff-feed-counter" id="ff-feed-counter">
+        <div class="ff-feed-counter-inner">
+            <span class="ff-spinner ff-spinner--sm ff-hidden" id="ff-counter-spinner"></span>
+            <span id="ff-counter-text">{{ 'Loading...'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+        </div>
+    </div>
+
+    {# Basic feed settings card #}
+    <div class="ff-card ff-mb-lg">
+        <div class="ff-card-header">
+            <h2 class="ff-card-title">{{ 'Basic settings'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+        </div>
+        <div class="ff-card-body">
+            <div class="ff-grid ff-grid--3">
+                <div class="ff-form-group">
+                    <label class="ff-label" for="ff-feed-country">{{ 'Country code (ISO)'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                    <input class="ff-input" id="ff-feed-country" placeholder="PL" maxlength="2" style="text-transform:uppercase;">
+                </div>
+                <div class="ff-form-group">
+                    <label class="ff-label" for="ff-feed-lang">{{ 'Language code (ISO)'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                    <input class="ff-input" id="ff-feed-lang" placeholder="pl" maxlength="5">
+                </div>
+                <div class="ff-form-group">
+                    <label class="ff-label" for="ff-feed-currency">{{ 'Currency (ISO)'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                    <input class="ff-input" id="ff-feed-currency" placeholder="PLN" maxlength="3" style="text-transform:uppercase;">
+                </div>
+            </div>
+            <div class="ff-grid ff-grid--2">
+                <div class="ff-form-group">
+                    <label class="ff-label" for="ff-feed-desc-source">{{ 'Description source'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                    <select class="ff-select" id="ff-feed-desc-source">
+                        <option value="description_short">{{ 'Short description'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                        <option value="description">{{ 'Full description'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                        <option value="both">{{ 'Both (combined)'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    </select>
+                </div>
+                <div class="ff-form-group">
+                    <label class="ff-label" for="ff-feed-title-tpl">{{ 'Title template'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                    <input class="ff-input" id="ff-feed-title-tpl" value="{name}" placeholder="{name} - {brand}">
+                    <p class="ff-help-text">{{ 'Variables: {name}, {brand}, {category}, {reference}'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                </div>
+            </div>
+            <div class="ff-grid ff-grid--2">
+                <div class="ff-form-group">
+                    <label class="ff-label" for="ff-feed-offer-prefix">{{ 'Offer ID prefix'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                    <input class="ff-input" id="ff-feed-offer-prefix" placeholder="" maxlength="20">
+                    <p class="ff-help-text">{{ 'Optional prefix added before product IDs when sending to GMC. Leave empty for "123", set to "PL" for "PL123". Use this to match products that already exist in your Merchant Center under a different ID scheme.'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                </div>
+            </div>
+            <div class="ff-grid ff-grid--2">
+                <div class="ff-switch-card">
+                    <div>
+                        <p class="ff-switch-card-title">{{ 'Include tax'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <p class="ff-switch-card-desc">{{ 'Prices with VAT in feed'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    </div>
+                    <label class="ff-switch">
+                        <input type="checkbox" id="ff-feed-tax" checked>
+                        <span class="ff-switch-slider"></span>
+                    </label>
+                </div>
+                <div class="ff-switch-card">
+                    <div>
+                        <p class="ff-switch-card-title">{{ 'Active'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <p class="ff-switch-card-desc">{{ 'Enable synchronization for this feed'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    </div>
+                    <label class="ff-switch">
+                        <input type="checkbox" id="ff-feed-active" checked>
+                        <span class="ff-switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Product Filters - vertical tabs layout #}
+    <div class="ff-card ff-mb-lg" id="ff-filters-card">
+        <div class="ff-card-header">
+            <h2 class="ff-card-title">{{ 'Product filtering'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+            <span class="ff-badge ff-badge--neutral" id="ff-filter-badge">{{ 'No filters'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+        </div>
+        <div class="ff-card-body">
+            <div class="ff-vtabs">
+                <nav class="ff-vtabs-nav">
+                    <button type="button" class="ff-vtab ff-vtab--active" data-tab="categories">
+                        <span class="ff-vtab-label">{{ 'Categories'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-vtab-hint" id="ff-hint-categories"></span>
+                    </button>
+                    <button type="button" class="ff-vtab" data-tab="manufacturers">
+                        <span class="ff-vtab-label">{{ 'Manufacturers'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-vtab-hint" id="ff-hint-manufacturers"></span>
+                    </button>
+                    <button type="button" class="ff-vtab" data-tab="suppliers">
+                        <span class="ff-vtab-label">{{ 'Suppliers'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-vtab-hint" id="ff-hint-suppliers"></span>
+                    </button>
+                    <button type="button" class="ff-vtab" data-tab="price">
+                        <span class="ff-vtab-label">{{ 'Price range'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-vtab-hint" id="ff-hint-price"></span>
+                    </button>
+                    <button type="button" class="ff-vtab" data-tab="stock">
+                        <span class="ff-vtab-label">{{ 'Availability'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-vtab-hint" id="ff-hint-stock"></span>
+                    </button>
+                    <button type="button" class="ff-vtab" data-tab="requirements">
+                        <span class="ff-vtab-label">{{ 'Requirements'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-vtab-hint" id="ff-hint-requirements"></span>
+                    </button>
+                    <button type="button" class="ff-vtab" data-tab="condition">
+                        <span class="ff-vtab-label">{{ 'Product condition'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-vtab-hint" id="ff-hint-condition"></span>
+                    </button>
+                    <button type="button" class="ff-vtab" data-tab="visibility">
+                        <span class="ff-vtab-label">{{ 'Visibility'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-vtab-hint" id="ff-hint-visibility"></span>
+                    </button>
+                    <button type="button" class="ff-vtab" data-tab="features">
+                        <span class="ff-vtab-label">{{ 'Features'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-vtab-hint" id="ff-hint-features"></span>
+                    </button>
+                    <button type="button" class="ff-vtab" data-tab="tags">
+                        <span class="ff-vtab-label">{{ 'Tags'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-vtab-hint" id="ff-hint-tags"></span>
+                    </button>
+                    <button type="button" class="ff-vtab" data-tab="excluded">
+                        <span class="ff-vtab-label">{{ 'Exclusions'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-vtab-hint" id="ff-hint-excluded"></span>
+                    </button>
+                </nav>
+
+                <div class="ff-vtabs-content">
+                    {# Panel: Categories #}
+                    <div class="ff-vtab-panel ff-vtab-panel--active ff-vtab-panel--fill" data-panel="categories">
+                        <div class="ff-flex-between ff-mb-sm">
+                            <p class="ff-text-sm ff-text-muted">{{ 'Select categories and choose mode'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                            <select class="ff-select ff-select--inline" id="ff-filter-categories-mode" style="width: auto; min-width: 200px;">
+                                <option value="include">{{ 'Include selected'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                                <option value="exclude">{{ 'Exclude selected'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                            </select>
+                        </div>
+                        <div class="ff-category-tree ff-category-tree--fill" id="ff-filter-categories">
+                            <div class="ff-text-sm ff-text-muted">{{ 'Loading categories...'|trans({}, 'Modules.Feedforge.Admin') }}</div>
+                        </div>
+                    </div>
+
+                    {# Panel: Manufacturers #}
+                    <div class="ff-vtab-panel ff-vtab-panel--fill" data-panel="manufacturers">
+                        <div class="ff-flex-between ff-mb-sm">
+                            <p class="ff-text-sm ff-text-muted">{{ 'Select manufacturers and choose mode'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                            <select class="ff-select ff-select--inline" id="ff-filter-manufacturers-mode" style="width: auto; min-width: 200px;">
+                                <option value="include">{{ 'Include selected'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                                <option value="exclude">{{ 'Exclude selected'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                            </select>
+                        </div>
+                        <div id="ff-filter-manufacturers" class="ff-checkbox-list ff-checkbox-list--cols">
+                            <span class="ff-text-sm ff-text-muted">{{ 'Loading...'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        </div>
+                    </div>
+
+                    {# Panel: Suppliers #}
+                    <div class="ff-vtab-panel ff-vtab-panel--fill" data-panel="suppliers">
+                        <div class="ff-flex-between ff-mb-sm">
+                            <p class="ff-text-sm ff-text-muted">{{ 'Select suppliers and choose mode'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                            <select class="ff-select ff-select--inline" id="ff-filter-suppliers-mode" style="width: auto; min-width: 200px;">
+                                <option value="include">{{ 'Include selected'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                                <option value="exclude">{{ 'Exclude selected'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                            </select>
+                        </div>
+                        <div id="ff-filter-suppliers" class="ff-checkbox-list ff-checkbox-list--cols">
+                            <span class="ff-text-sm ff-text-muted">{{ 'Loading...'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        </div>
+                    </div>
+
+                    {# Panel: Price range #}
+                    <div class="ff-vtab-panel" data-panel="price">
+                        <div class="ff-flex-between ff-mb-sm">
+                            <p class="ff-text-sm ff-text-muted">{{ 'Define price ranges'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                            <select class="ff-select ff-select--inline" id="ff-filter-price-mode" style="width: auto; min-width: 200px;">
+                                <option value="include">{{ 'Include ranges'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                                <option value="exclude">{{ 'Exclude ranges'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                            </select>
+                        </div>
+                        <div id="ff-filter-price-ranges">
+                            <button class="ff-btn ff-btn--ghost ff-btn--sm" id="ff-add-price-range">{{ '+ Add range'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+                        </div>
+                    </div>
+
+                    {# Panel: Availability #}
+                    <div class="ff-vtab-panel" data-panel="stock">
+                        <p class="ff-text-sm ff-text-muted ff-mb-sm">{{ 'Filter by stock level'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <div style="display: flex; flex-direction: column; gap: 8px; max-width: 360px;">
+                            <div class="ff-switch-card ff-switch-card--compact">
+                                <span class="ff-switch-card-title">{{ 'Skip out-of-stock products'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                                <label class="ff-switch">
+                                    <input type="checkbox" id="ff-filter-skip-out-of-stock">
+                                    <span class="ff-switch-slider"></span>
+                                </label>
+                            </div>
+                            <div class="ff-form-group ff-mt-xs ff-hidden" id="ff-min-stock-group">
+                                <label class="ff-label" for="ff-filter-min-stock">{{ 'Minimum stock level'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                                <input type="number" class="ff-input" id="ff-filter-min-stock" placeholder="{{ 'e.g. 5'|trans({}, 'Modules.Feedforge.Admin') }}" min="1" step="1">
+                                <p class="ff-help-text">{{ 'Export only products with stock >= given value'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Panel: Requirements #}
+                    <div class="ff-vtab-panel" data-panel="requirements">
+                        <p class="ff-text-sm ff-text-muted ff-mb-sm">{{ 'Require specific fields to be present in the product'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <div style="display: flex; flex-direction: column; gap: 8px; max-width: 360px;">
+                            <div class="ff-switch-card ff-switch-card--compact">
+                                <span class="ff-switch-card-title">{{ 'Require EAN/GTIN'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                                <label class="ff-switch">
+                                    <input type="checkbox" id="ff-filter-require-ean">
+                                    <span class="ff-switch-slider"></span>
+                                </label>
+                            </div>
+                            <div class="ff-switch-card ff-switch-card--compact">
+                                <span class="ff-switch-card-title">{{ 'Require image'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                                <label class="ff-switch">
+                                    <input type="checkbox" id="ff-filter-require-image">
+                                    <span class="ff-switch-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Panel: Product condition #}
+                    <div class="ff-vtab-panel" data-panel="condition">
+                        <p class="ff-text-sm ff-text-muted ff-mb-sm">{{ 'Which product conditions to include in the feed'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <div class="ff-checkbox-list" id="ff-filter-condition">
+                            <label class="ff-checkbox-label">
+                                <input type="checkbox" value="new" checked> {{ 'New'|trans({}, 'Modules.Feedforge.Admin') }}
+                            </label>
+                            <label class="ff-checkbox-label">
+                                <input type="checkbox" value="used"> {{ 'Used'|trans({}, 'Modules.Feedforge.Admin') }}
+                            </label>
+                            <label class="ff-checkbox-label">
+                                <input type="checkbox" value="refurbished"> {{ 'Refurbished'|trans({}, 'Modules.Feedforge.Admin') }}
+                            </label>
+                        </div>
+                    </div>
+
+                    {# Panel: Visibility #}
+                    <div class="ff-vtab-panel" data-panel="visibility">
+                        <p class="ff-text-sm ff-text-muted ff-mb-sm">{{ 'Which catalog visibilities to include'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <div class="ff-checkbox-list" id="ff-filter-visibility">
+                            <label class="ff-checkbox-label">
+                                <input type="checkbox" value="both" checked> {{ 'Everywhere'|trans({}, 'Modules.Feedforge.Admin') }}
+                            </label>
+                            <label class="ff-checkbox-label">
+                                <input type="checkbox" value="catalog"> {{ 'Catalog'|trans({}, 'Modules.Feedforge.Admin') }}
+                            </label>
+                            <label class="ff-checkbox-label">
+                                <input type="checkbox" value="search"> {{ 'Search'|trans({}, 'Modules.Feedforge.Admin') }}
+                            </label>
+                            <label class="ff-checkbox-label">
+                                <input type="checkbox" value="none"> {{ 'Nowhere'|trans({}, 'Modules.Feedforge.Admin') }}
+                            </label>
+                        </div>
+                    </div>
+
+                    {# Panel: Features #}
+                    <div class="ff-vtab-panel ff-vtab-panel--fill" data-panel="features">
+                        <div class="ff-flex-between ff-mb-sm">
+                            <p class="ff-text-sm ff-text-muted">{{ 'Filter by product features'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                            <select class="ff-select ff-select--inline" id="ff-filter-features-mode" style="width: auto; min-width: 200px;">
+                                <option value="include">{{ 'Include matching'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                                <option value="exclude">{{ 'Exclude matching'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                            </select>
+                        </div>
+                        <div id="ff-filter-features" class="ff-feature-list">
+                            <button class="ff-btn ff-btn--ghost ff-btn--sm" id="ff-add-feature-filter" style="margin-left: auto; display: block;">{{ '+ Add filter'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+                        </div>
+                    </div>
+
+                    {# Panel: Tags #}
+                    <div class="ff-vtab-panel ff-vtab-panel--fill" data-panel="tags">
+                        <div class="ff-tag-columns">
+                            <div class="ff-tag-column">
+                                <span class="ff-tag-column-label ff-tag-column-label--include">{{ 'Included'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                                <div class="ff-tag-search-wrap">
+                                    <input type="text" class="ff-input ff-input--sm" data-tag-mode="include" placeholder="{{ 'Search tag...'|trans({}, 'Modules.Feedforge.Admin') }}">
+                                    <div class="ff-tag-dropdown ff-hidden"></div>
+                                </div>
+                                <div class="ff-tag-chips" id="ff-tags-include"></div>
+                            </div>
+                            <div class="ff-tag-column">
+                                <span class="ff-tag-column-label ff-tag-column-label--exclude">{{ 'Excluded'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                                <div class="ff-tag-search-wrap">
+                                    <input type="text" class="ff-input ff-input--sm" data-tag-mode="exclude" placeholder="{{ 'Search tag...'|trans({}, 'Modules.Feedforge.Admin') }}">
+                                    <div class="ff-tag-dropdown ff-hidden"></div>
+                                </div>
+                                <div class="ff-tag-chips" id="ff-tags-exclude"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Panel: Exclusions #}
+                    <div class="ff-vtab-panel" data-panel="excluded">
+                        <p class="ff-text-sm ff-text-muted ff-mb-sm">{{ 'Exclude specific products from the feed by their ID'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <div class="ff-excluded-input-wrap">
+                            <input type="number" class="ff-input ff-input--sm" id="ff-excluded-id-input" placeholder="{{ 'Enter product ID'|trans({}, 'Modules.Feedforge.Admin') }}" min="1" step="1">
+                            <button class="ff-btn ff-btn--primary ff-btn--sm" id="ff-excluded-add-btn">{{ 'Add'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+                            <span class="ff-text-sm ff-text-muted ff-hidden" id="ff-excluded-status"></span>
+                        </div>
+                        <div class="ff-excluded-chips" id="ff-excluded-chips"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Bottom save bar #}
+    <div class="ff-card">
+        <div class="ff-card-body" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <span class="ff-text-sm ff-text-muted" id="ff-counter-text-bottom">--</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="javascript:void(0)" class="ff-btn ff-btn--secondary" id="ff-back-to-config-bottom">{{ 'Cancel'|trans({}, 'Modules.Feedforge.Admin') }}</a>
+                <button class="ff-btn ff-btn--primary" id="ff-feed-save-btn-bottom">{{ 'Save feed'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}

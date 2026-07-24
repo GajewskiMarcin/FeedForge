@@ -1,0 +1,456 @@
+{% extends '@Modules/feedforge/views/templates/admin/layout.html.twig' %}
+
+{% block ff_content %}
+    <div class="ff-page-header">
+        <p class="ff-page-desc">{{ 'Connection, feed and synchronization settings'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+    </div>
+
+    {# Google API Credentials #}
+    <div class="ff-card ff-mb-lg">
+        <div class="ff-card-header">
+            <h2 class="ff-card-title">{{ 'Google API Credentials'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+        </div>
+        <div class="ff-card-body">
+            <p class="ff-text-sm ff-text-muted ff-mb-md">
+                {{ 'Create a project in'|trans({}, 'Modules.Feedforge.Admin') }} <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a>,
+                {{ 'enable'|trans({}, 'Modules.Feedforge.Admin') }} <strong>Content API for Shopping</strong>, {{ 'then create OAuth 2.0 credentials (type: Web application).'|trans({}, 'Modules.Feedforge.Admin') }}
+                {{ 'As the redirect URI enter:'|trans({}, 'Modules.Feedforge.Admin') }} <code>{{ app.request.schemeAndHttpHost }}{{ app.request.baseUrl }}/modules/feedforge/oauth/callback</code>
+            </p>
+            <div class="ff-form-group">
+                <label class="ff-label" for="ff-config-client-id">Client ID</label>
+                <input type="text" class="ff-input" id="ff-config-client-id" placeholder="{{ 'e.g. 123456789-abc.apps.googleusercontent.com'|trans({}, 'Modules.Feedforge.Admin') }}" autocomplete="off">
+            </div>
+            <div class="ff-form-group">
+                <label class="ff-label" for="ff-config-client-secret">Client Secret</label>
+                <input type="password" class="ff-input" id="ff-config-client-secret" placeholder="{{ 'Enter Client Secret'|trans({}, 'Modules.Feedforge.Admin') }}" autocomplete="new-password">
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button class="ff-btn ff-btn--primary" id="ff-save-credentials">{{ 'Save API credentials'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+                <span class="ff-text-sm ff-text-muted" id="ff-credentials-status"></span>
+            </div>
+        </div>
+    </div>
+
+    {# OAuth Connection #}
+    <div class="ff-card ff-mb-lg" id="ff-oauth-card">
+        <div class="ff-card-header">
+            <h2 class="ff-card-title">{{ 'Google Merchant Center Connection'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+        </div>
+        <div class="ff-card-body">
+            <div id="ff-oauth-disconnected">
+                <div class="ff-connection ff-connection--disconnected">
+                    <div><span class="ff-dot ff-dot--neutral"></span></div>
+                    <div class="ff-connection-info">
+                        <h3 class="ff-connection-title">{{ 'Not connected'|trans({}, 'Modules.Feedforge.Admin') }}</h3>
+                        <p class="ff-connection-detail">{{ 'First save the API credentials above, then click "Connect with Google"'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    </div>
+                    <a href="{{ oauthConnectUrl }}" class="ff-btn ff-btn--primary" id="ff-oauth-connect-btn">
+                        {{ 'Connect with Google'|trans({}, 'Modules.Feedforge.Admin') }}
+                    </a>
+                </div>
+            </div>
+            <div id="ff-oauth-connected" class="ff-hidden">
+                <div class="ff-connection ff-connection--connected">
+                    <div><span class="ff-dot ff-dot--success"></span></div>
+                    <div class="ff-connection-info">
+                        <h3 class="ff-connection-title">{{ 'Connected'|trans({}, 'Modules.Feedforge.Admin') }}</h3>
+                        <p class="ff-connection-detail">
+                            <span id="ff-oauth-email"></span> · Merchant ID: <span id="ff-oauth-merchant-id"></span>
+                        </p>
+                    </div>
+                    <button class="ff-btn ff-btn--danger ff-btn--sm" id="ff-oauth-disconnect">{{ 'Disconnect'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+                </div>
+
+                {# Merchant ID input — visible when connected but ID not set yet,
+                   or reopened via "Change Merchant ID". #}
+                <div id="ff-merchant-selector" class="ff-mt-md ff-hidden">
+                    <div class="ff-form-group">
+                        <label class="ff-label" for="ff-merchant-manual">{{ 'Merchant Center ID'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                        <p class="ff-help-text">{{ 'Find it in Google Merchant Center — top-right corner next to your account name. Enter the numeric ID below and click Save.'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <div class="ff-grid ff-grid--2 ff-mt-sm">
+                            <input type="text" class="ff-input" id="ff-merchant-manual" placeholder="e.g. 123456789" pattern="[0-9]+" inputmode="numeric">
+                            <button type="button" class="ff-btn ff-btn--primary ff-btn--sm" id="ff-merchant-save">
+                                {{ 'Save Merchant ID'|trans({}, 'Modules.Feedforge.Admin') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {# Allow user to change the ID later #}
+                <div id="ff-merchant-change-row" class="ff-mt-sm ff-hidden">
+                    <button type="button" class="ff-btn ff-btn--ghost ff-btn--sm" id="ff-merchant-change">
+                        {{ 'Change Merchant ID'|trans({}, 'Modules.Feedforge.Admin') }}
+                    </button>
+                </div>
+
+                {# One-time GCP developer registration — shown only after Merchant ID is set
+                   and only when the project is NOT yet registered. #}
+                <div id="ff-register-gcp-row" class="ff-mt-md ff-hidden">
+                    <label class="ff-label" for="ff-register-gcp-email">
+                        {{ 'Register GCP project (one-time)'|trans({}, 'Modules.Feedforge.Admin') }}
+                    </label>
+                    <p class="ff-help-text">
+                        {{ 'Google requires a one-time registration linking your GCP project to the Merchant Center account. Enter your Google account email and click Register. After success wait ~5 minutes for Google to propagate it.'|trans({}, 'Modules.Feedforge.Admin') }}
+                    </p>
+                    <div class="ff-grid ff-grid--2 ff-mt-sm">
+                        <input type="email" class="ff-input" id="ff-register-gcp-email" placeholder="your@email.com">
+                        <button type="button" class="ff-btn ff-btn--secondary ff-btn--sm" id="ff-register-gcp">
+                            {{ 'Register GCP project'|trans({}, 'Modules.Feedforge.Admin') }}
+                        </button>
+                    </div>
+                </div>
+
+                {# Steady-state status row when GCP is already registered #}
+                <div id="ff-gcp-registered-row" class="ff-mt-md ff-hidden">
+                    <div class="ff-connection ff-connection--connected">
+                        <div><span class="ff-dot ff-dot--success"></span></div>
+                        <div class="ff-connection-info">
+                            <h3 class="ff-connection-title">{{ 'GCP project: registered'|trans({}, 'Modules.Feedforge.Admin') }}</h3>
+                            <p class="ff-connection-detail">
+                                {{ 'Developer:'|trans({}, 'Modules.Feedforge.Admin') }}
+                                <span id="ff-gcp-registered-email"></span>
+                            </p>
+                        </div>
+                        <button type="button" class="ff-btn ff-btn--ghost ff-btn--sm" id="ff-gcp-reregister">
+                            {{ 'Re-register'|trans({}, 'Modules.Feedforge.Admin') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Feed configurations #}
+    <div class="ff-card ff-mb-lg">
+        <div class="ff-card-header">
+            <h2 class="ff-card-title">{{ 'Feeds (countries and languages)'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+            <a class="ff-btn ff-btn--ghost ff-btn--sm" id="ff-add-feed-link">{{ '+ Add feed'|trans({}, 'Modules.Feedforge.Admin') }}</a>
+        </div>
+        <div class="ff-card-body">
+            <div class="ff-table-wrap">
+                <table class="ff-table">
+                    <thead>
+                        <tr>
+                            <th>{{ 'Country'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            <th>{{ 'Language'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            <th>{{ 'Currency'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            <th>{{ 'Offer ID prefix'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            <th>{{ 'Data Source'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            <th>{{ 'Active'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            <th class="ff-table-actions">{{ 'Actions'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ff-feeds-tbody">
+                        <tr>
+                            <td colspan="7">
+                                <div class="ff-empty">
+                                    <p class="ff-empty-text ff-text-muted">{{ 'No feeds configured'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {# Merchant API Data Sources #}
+    <div class="ff-card ff-mb-lg">
+        <div class="ff-card-header">
+            <h2 class="ff-card-title">{{ 'Merchant API Data Sources'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+            <button class="ff-btn ff-btn--secondary ff-btn--sm" id="ff-data-sources-provision">
+                {{ 'Provision missing'|trans({}, 'Modules.Feedforge.Admin') }}
+            </button>
+        </div>
+        <div class="ff-card-body">
+            <p class="ff-help-text ff-mb-md">
+                {{ 'Each feed needs a Merchant API "data source" before products can be uploaded. Feed Forge creates them automatically when you save a feed, but you can manually re-provision missing ones here.'|trans({}, 'Modules.Feedforge.Admin') }}
+            </p>
+            <div class="ff-table-wrap">
+                <table class="ff-table">
+                    <thead>
+                        <tr>
+                            <th>{{ 'Display name'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            <th>{{ 'Feed label'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            <th>{{ 'Language'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            <th>{{ 'Bound to feed'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ff-data-sources-tbody">
+                        <tr>
+                            <td colspan="4">
+                                <div class="ff-empty">
+                                    <p class="ff-empty-text ff-text-muted">{{ 'No data sources yet'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {# Sync settings #}
+    <div class="ff-grid ff-grid--2 ff-mb-lg">
+        <div class="ff-card">
+            <div class="ff-card-header">
+                <h2 class="ff-card-title">{{ 'Synchronization settings'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+            </div>
+            <div class="ff-card-body">
+                <div class="ff-form-group">
+                    <label class="ff-label">{{ 'Batch size'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                    <select class="ff-select" id="ff-config-batch-size">
+                        <option value="50">{{ '50 products'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                        <option value="100">{{ '100 products'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                        <option value="200">{{ '200 products'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                        <option value="500">{{ '500 products'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    </select>
+                    <p class="ff-help-text">{{ 'How many products to send in a single API request'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                </div>
+                <div class="ff-form-group">
+                    <label class="ff-label">{{ 'Retry limit'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                    <select class="ff-select" id="ff-config-max-retries">
+                        <option value="1">1</option>
+                        <option value="3">3</option>
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
+                <div class="ff-form-group">
+                    <label class="ff-label">{{ 'Auto-sync interval'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                    <select class="ff-select" id="ff-config-sync-interval">
+                        <option value="1">{{ 'Every 1 hour'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                        <option value="4">{{ 'Every 4 hours'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                        <option value="12">{{ 'Every 12 hours'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                        <option value="24">{{ 'Once a day'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                        <option value="0">{{ 'Disabled (manual only)'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    </select>
+                </div>
+                <div class="ff-form-group">
+                    <label class="ff-label">{{ 'Max worker execution time (seconds)'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                    <input type="number" class="ff-input" id="ff-config-max-execution" value="300" min="60" max="600">
+                </div>
+            </div>
+            <div class="ff-card-footer">
+                <button class="ff-btn ff-btn--primary ff-save-config-btn">{{ 'Save settings'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+            </div>
+        </div>
+
+        <div class="ff-card">
+            <div class="ff-card-header">
+                <h2 class="ff-card-title">{{ 'Options'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+            </div>
+            <div class="ff-card-body">
+                <div class="ff-switch-card ff-mb-sm">
+                    <div>
+                        <p class="ff-switch-card-title">{{ 'Delta sync'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <p class="ff-switch-card-desc">{{ 'Synchronize only changed products'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    </div>
+                    <label class="ff-switch">
+                        <input type="checkbox" id="ff-config-delta-sync" checked>
+                        <span class="ff-switch-slider"></span>
+                    </label>
+                </div>
+                <div class="ff-switch-card ff-mb-sm">
+                    <div>
+                        <p class="ff-switch-card-title">{{ 'Auto-remove'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <p class="ff-switch-card-desc">{{ 'Remove products from GMC that were deleted in PrestaShop'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    </div>
+                    <label class="ff-switch">
+                        <input type="checkbox" id="ff-config-auto-remove" checked>
+                        <span class="ff-switch-slider"></span>
+                    </label>
+                </div>
+                <div class="ff-switch-card">
+                    <div>
+                        <p class="ff-switch-card-title">{{ 'Debug logging'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <p class="ff-switch-card-desc">{{ 'Detailed logs in var/logs/'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    </div>
+                    <label class="ff-switch">
+                        <input type="checkbox" id="ff-config-debug-logging">
+                        <span class="ff-switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="ff-card-footer">
+                <button class="ff-btn ff-btn--primary ff-save-config-btn">{{ 'Save settings'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+            </div>
+        </div>
+    </div>
+
+    {# Attribute mapping #}
+    <div class="ff-card ff-mb-lg">
+        <div class="ff-card-header">
+            <h2 class="ff-card-title">{{ 'Attribute mapping'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+            <button class="ff-btn ff-btn--ghost ff-btn--sm" id="ff-add-attr-map">{{ '+ Add mapping'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+        </div>
+        <div class="ff-card-body">
+            <p class="ff-text-sm ff-text-muted ff-mb-md">
+                {{ 'Map PrestaShop attributes and features to Google Merchant Center fields'|trans({}, 'Modules.Feedforge.Admin') }}
+            </p>
+            <div class="ff-table-wrap">
+                <table class="ff-table">
+                    <thead>
+                        <tr>
+                            <th>{{ 'GMC field'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            <th>{{ 'PrestaShop source'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            <th>{{ 'Active'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            <th class="ff-table-actions">{{ 'Actions'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ff-attribute-maps-tbody">
+                        <tr>
+                            <td colspan="4">
+                                <div class="ff-empty">
+                                    <p class="ff-empty-text ff-text-muted">{{ 'Loading mappings...'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {# Promotions #}
+    <div class="ff-card ff-mb-lg" id="ff-promotions-card">
+        <div class="ff-card-header">
+            <h2 class="ff-card-title">{{ 'Promotions (Google Merchant Center)'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+            <div style="display: flex; gap: 8px;">
+                <button class="ff-btn ff-btn--ghost ff-btn--sm" id="ff-promotions-scan">{{ 'Scan cart rules'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+                <button class="ff-btn ff-btn--primary ff-btn--sm" id="ff-promotions-sync-all">{{ 'Sync all'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+            </div>
+        </div>
+        <div class="ff-card-body">
+            <p class="ff-text-sm ff-text-muted ff-mb-md">
+                {{ 'Mapping PrestaShop cart rules to Google Shopping promotions. Supported types: percentage discount, fixed amount discount, and free shipping.'|trans({}, 'Modules.Feedforge.Admin') }}
+            </p>
+
+            <div id="ff-promotions-loading" class="ff-empty">
+                <div class="ff-spinner"></div>
+                <p class="ff-empty-text ff-text-muted">{{ 'Loading promotions...'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            </div>
+
+            <div id="ff-promotions-empty" class="ff-hidden">
+                <div class="ff-empty">
+                    <p class="ff-empty-title">{{ 'No mapped promotions'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    <p class="ff-empty-text ff-text-muted">{{ 'Click "Scan cart rules" to find promotions to map'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                </div>
+            </div>
+
+            <div id="ff-promotions-table" class="ff-hidden">
+                <div class="ff-table-wrap">
+                    <table class="ff-table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'Name'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th>{{ 'Discount type'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th>{{ 'Value'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th>{{ 'Code'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th>{{ 'GMC status'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th>{{ 'Last sync'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th class="ff-table-actions">{{ 'Actions'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ff-promotions-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            {# Scan results modal area #}
+            <div id="ff-promotions-scan-results" class="ff-hidden ff-mt-lg">
+                <h3 class="ff-text-sm" style="margin-bottom: 8px;">{{ 'Found cart rules to map:'|trans({}, 'Modules.Feedforge.Admin') }}</h3>
+                <div class="ff-table-wrap">
+                    <table class="ff-table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'Name'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th>{{ 'Type'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th>{{ 'Code'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th>{{ 'Period'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th class="ff-table-actions">{{ 'Action'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ff-promotions-scan-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Shipping settings #}
+    <div class="ff-card ff-mb-lg" id="ff-shipping-card">
+        <div class="ff-card-header">
+            <h2 class="ff-card-title">{{ 'Shipping settings (Google Merchant Center)'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+            <div style="display: flex; gap: 8px;">
+                <button class="ff-btn ff-btn--ghost ff-btn--sm" id="ff-shipping-refresh">{{ 'Refresh'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+                <button class="ff-btn ff-btn--primary ff-btn--sm" id="ff-shipping-push">{{ 'Push to Google'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+            </div>
+        </div>
+        <div class="ff-card-body">
+            <p class="ff-text-sm ff-text-muted ff-mb-md">
+                {{ 'Preview of PrestaShop carrier mapping to Google Merchant Center shipping services. Module carriers (InPost, DPD, etc.) are skipped — their prices are dynamic.'|trans({}, 'Modules.Feedforge.Admin') }}
+            </p>
+
+            <div id="ff-shipping-loading" class="ff-empty">
+                <div class="ff-spinner"></div>
+                <p class="ff-empty-text ff-text-muted">{{ 'Loading preview...'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            </div>
+
+            <div id="ff-shipping-empty" class="ff-hidden">
+                <div class="ff-empty">
+                    <p class="ff-empty-title">{{ 'No carriers'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    <p class="ff-empty-text ff-text-muted">{{ 'Add active carriers in PrestaShop'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                </div>
+            </div>
+
+            <div id="ff-shipping-preview" class="ff-hidden">
+                <div class="ff-flex-between ff-mb-md" id="ff-shipping-summary"></div>
+                <div class="ff-table-wrap">
+                    <table class="ff-table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'Carrier'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th>{{ 'Country'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th>{{ 'Rate type'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th>{{ 'Free'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th>{{ 'Delivery time'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ff-shipping-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="ff-shipping-skipped" class="ff-hidden ff-mt-md">
+                <p class="ff-text-sm ff-text-muted ff-mb-xs"><strong>{{ 'Skipped carriers:'|trans({}, 'Modules.Feedforge.Admin') }}</strong></p>
+                <div id="ff-shipping-skipped-list"></div>
+            </div>
+
+            <div id="ff-shipping-google" class="ff-hidden ff-mt-lg">
+                <h3 class="ff-text-sm" style="margin-bottom: 8px;">{{ 'Current settings in Google:'|trans({}, 'Modules.Feedforge.Admin') }}</h3>
+                <div id="ff-shipping-google-info"></div>
+            </div>
+        </div>
+    </div>
+
+    {# Cron info #}
+    <div class="ff-card">
+        <div class="ff-card-header">
+            <h2 class="ff-card-title">{{ 'Cron / automatic synchronization'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+        </div>
+        <div class="ff-card-body">
+            <p class="ff-text-sm ff-mb-md">{{ 'Add the following command to your server crontab:'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            <div style="background: #F1F3F5; padding: 12px 16px; border-radius: 6px; font-family: 'SF Mono', Consolas, monospace; font-size: 13px; word-break: break-all;">
+                */60 * * * * curl -s "{{ app.request.schemeAndHttpHost }}/modules/feedforge/cron.php?token=<span id="ff-cron-token">***</span>" > /dev/null
+            </div>
+            <p class="ff-help-text ff-mt-sm">
+                {{ 'Cron token:'|trans({}, 'Modules.Feedforge.Admin') }} <code id="ff-cron-token-display" class="ff-font-mono">***</code>
+                <button class="ff-btn ff-btn--ghost ff-btn--sm" id="ff-show-cron-token">{{ 'Show'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+            </p>
+        </div>
+    </div>
+
+    {# Modal containers #}
+    <div id="ff-modal-attr-map" class="ff-hidden"></div>
+{% endblock %}

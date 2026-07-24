@@ -1,0 +1,100 @@
+{% extends '@Modules/feedforge/views/templates/admin/layout.html.twig' %}
+
+{% block ff_content %}
+    <div class="ff-page-header">
+        <p class="ff-page-desc">{{ 'Manage product statuses in Google Merchant Center'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+        <div class="ff-page-actions">
+            <button class="ff-btn ff-btn--secondary" id="ff-products-export">
+                ⬇ {{ 'Export'|trans({}, 'Modules.Feedforge.Admin') }}
+            </button>
+            <button class="ff-btn ff-btn--primary" id="ff-products-sync-selected" disabled>
+                ▶ {{ 'Sync selected'|trans({}, 'Modules.Feedforge.Admin') }}
+            </button>
+        </div>
+    </div>
+
+    {# Filters #}
+    <div class="ff-card ff-mb-lg">
+        <div class="ff-flex ff-gap-md" style="flex-wrap: wrap; align-items: flex-end;">
+            <div class="ff-form-group" style="flex: 1; min-width: 200px; margin: 0;">
+                <label class="ff-label">{{ 'Search'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                <input type="text" class="ff-input" id="ff-products-search" placeholder="{{ 'Name, SKU, EAN...'|trans({}, 'Modules.Feedforge.Admin') }}">
+            </div>
+            <div class="ff-form-group" style="width: 180px; margin: 0;">
+                <label class="ff-label">{{ 'GMC status'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                <select class="ff-select" id="ff-products-status-filter">
+                    <option value="">{{ 'All'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="approved">{{ 'Approved'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="pending">{{ 'Pending'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="disapproved">{{ 'Disapproved'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="unknown">{{ 'Not synced'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                </select>
+            </div>
+            <div class="ff-form-group" style="width: 180px; margin: 0;">
+                <label class="ff-label">{{ 'Sync status'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                <select class="ff-select" id="ff-products-sync-filter">
+                    <option value="">{{ 'All'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="synced">{{ 'Synced'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="queued">{{ 'Queued'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="error">{{ 'Error'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                </select>
+            </div>
+            <button class="ff-btn ff-btn--ghost" id="ff-products-clear-filters">{{ 'Clear filters'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+        </div>
+    </div>
+
+    {# Products table #}
+    <div class="ff-card">
+        <div class="ff-table-wrap">
+            <table class="ff-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">
+                            <input type="checkbox" id="ff-select-all">
+                        </th>
+                        <th>ID</th>
+                        <th>{{ 'Product name'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                        <th>SKU</th>
+                        <th>{{ 'GMC status'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                        <th>{{ 'Last sync'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                        <th>{{ 'Errors'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                        <th class="ff-table-actions">{{ 'Actions'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                    </tr>
+                </thead>
+                <tbody id="ff-products-tbody">
+                    <tr>
+                        <td colspan="8">
+                            <div class="ff-empty">
+                                <p class="ff-empty-title">{{ 'Loading products...'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                                <div class="ff-spinner ff-mt-sm"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="ff-products-pagination"></div>
+    </div>
+
+    {# Bulk action bar (hidden by default) #}
+    <div id="ff-bulk-bar" class="ff-hidden" style="
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--ff-dark);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 12px;
+        box-shadow: var(--ff-shadow-lg);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        z-index: 1000;
+    ">
+        <span id="ff-bulk-count">{{ '%count% selected'|trans({'%count%': 0}, 'Modules.Feedforge.Admin') }}</span>
+        <button class="ff-btn ff-btn--primary ff-btn--sm" id="ff-bulk-sync">{{ 'Sync'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+        <button class="ff-btn ff-btn--danger ff-btn--sm" id="ff-bulk-remove">{{ 'Remove from GMC'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+        <button class="ff-btn ff-btn--ghost ff-btn--sm" style="color: white;" id="ff-bulk-cancel">{{ 'Cancel'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+    </div>
+{% endblock %}

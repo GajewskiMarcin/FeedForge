@@ -1,0 +1,139 @@
+{% extends '@Modules/feedforge/views/templates/admin/layout.html.twig' %}
+
+{% block ff_content %}
+    <div class="ff-page-header">
+        <p class="ff-page-desc">{{ 'Manage exclusions, pricing, identifiers and Google categories'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+        <div class="ff-page-actions">
+            <button class="ff-btn ff-btn--primary" id="ff-add-rule">
+                + {{ 'Add rule'|trans({}, 'Modules.Feedforge.Admin') }}
+            </button>
+        </div>
+    </div>
+
+    {# Tabs #}
+    <div>
+        <div class="ff-tabs" data-ff-tabs>
+            <button class="ff-tab ff-tab--active" data-ff-tab="categories">{{ 'Category mapping'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+            <button class="ff-tab" data-ff-tab="exclusions">{{ 'Exclusions'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+            <button class="ff-tab" data-ff-tab="identifiers">{{ 'Identifiers (GTIN/MPN)'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+            <button class="ff-tab" data-ff-tab="pricing">{{ 'Pricing'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+            <button class="ff-tab" data-ff-tab="labels">{{ 'Custom Labels'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+        </div>
+
+        {# Category mapping #}
+        <div class="ff-tab-panel ff-tab-panel--active" data-ff-panel="categories">
+            <div class="ff-card">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'PrestaShop to Google category mapping'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                    <div>
+                        <button class="ff-btn ff-btn--ghost ff-btn--sm" id="ff-import-taxonomy" title="{{ 'Download the official Google category list so the autocomplete can find them'|trans({}, 'Modules.Feedforge.Admin') }}">
+                            ⬇ {{ 'Import Google categories'|trans({}, 'Modules.Feedforge.Admin') }}
+                        </button>
+                        <button class="ff-btn ff-btn--ghost ff-btn--sm" id="ff-add-category-map" style="margin-left: 8px;">+ {{ 'Add mapping'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+                    </div>
+                </div>
+                <div class="ff-card-body">
+                    <div class="ff-table-wrap">
+                        <table class="ff-table">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'PrestaShop category'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                    <th>{{ 'Google category'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                    <th>{{ 'Products'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                    <th>{{ 'Active'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                    <th class="ff-table-actions">{{ 'Actions'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ff-categories-tbody">
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="ff-empty">
+                                            <p class="ff-empty-title">{{ 'No category mappings'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                                            <p class="ff-empty-text ff-text-muted">{{ 'Add a mapping to assign Google categories to your store categories'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Exclusion rules #}
+        <div class="ff-tab-panel" data-ff-panel="exclusions">
+            <div class="ff-card">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Exclusion rules'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                    <button class="ff-btn ff-btn--ghost ff-btn--sm" data-add-rule-type="exclusion">+ {{ 'Add rule'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+                </div>
+                <div class="ff-card-body" id="ff-exclusion-rules">
+                    <div class="ff-empty">
+                        <p class="ff-empty-title">{{ 'No exclusion rules'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <p class="ff-empty-text ff-text-muted">{{ 'Add rules to automatically exclude products from synchronization'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Identifier rules #}
+        <div class="ff-tab-panel" data-ff-panel="identifiers">
+            <div class="ff-card">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Identifier rules (GTIN / MPN)'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                    <button class="ff-btn ff-btn--ghost ff-btn--sm" data-add-rule-type="identifier">+ {{ 'Add rule'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+                </div>
+                <div class="ff-card-body" id="ff-identifier-rules">
+                    <div class="ff-alert ff-alert--info ff-mb-md">
+                        <span>ℹ</span>
+                        <span>{{ 'GTIN and MPN source configuration is available in <a href="%config_url%">Configuration</a>. Here you can add advanced fallback rules.'|trans({'%config_url%': page_urls.config}, 'Modules.Feedforge.Admin')|raw }}</span>
+                    </div>
+                    <div class="ff-empty">
+                        <p class="ff-empty-title">{{ 'No additional identifier rules'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Pricing rules #}
+        <div class="ff-tab-panel" data-ff-panel="pricing">
+            <div class="ff-card">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Pricing rules'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                    <button class="ff-btn ff-btn--ghost ff-btn--sm" data-add-rule-type="pricing">+ {{ 'Add rule'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+                </div>
+                <div class="ff-card-body" id="ff-pricing-rules">
+                    <div class="ff-empty">
+                        <p class="ff-empty-title">{{ 'No pricing rules'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <p class="ff-empty-text ff-text-muted">{{ 'Add rules for minimum prices, rounding, etc.'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Custom labels #}
+        <div class="ff-tab-panel" data-ff-panel="labels">
+            <div class="ff-card">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Custom Labels (0-4)'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                    <button class="ff-btn ff-btn--ghost ff-btn--sm" data-add-rule-type="custom_label">+ {{ 'Add rule'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+                </div>
+                <div class="ff-card-body" id="ff-label-rules">
+                    <div class="ff-alert ff-alert--info ff-mb-md">
+                        <span>ℹ</span>
+                        <span>{{ 'Custom labels allow you to segment products in Google Ads. You can assign labels based on category, price, bestsellers, new arrivals, promotions, etc.'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                    </div>
+                    <div class="ff-empty">
+                        <p class="ff-empty-title">{{ 'No custom label rules'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ===== MODAL: Category mapping editor ===== #}
+    <div id="ff-modal-category" class="ff-hidden"></div>
+
+    {# ===== MODAL: Rule editor ===== #}
+    <div id="ff-modal-rule" class="ff-hidden"></div>
+{% endblock %}

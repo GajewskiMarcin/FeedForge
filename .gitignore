@@ -1,0 +1,32 @@
+*.zip
+*.log
+*.txt
+*.ps1
+*.php
+!feedforge/**/*.php
+*.docx
+.claude/
+admin-panel-ui/
+admin-panel-ui.zip
+feedforge-backup-*/
+gmerchantcenterprobf/
+nul
+PrestaShop-*.zip
+prestashop_edition_*.zip
+
+# Vendors
+vendor/
+composer.lock
+composer.phar
+node_modules/
+
+# PrestaShop runtime
+var/cache/*
+var/logs/*
+var/sessions/*
+
+# Local-only / private — never publish to the public repo
+docker-compose.yml
+secret-sauce-integration-guide.md
+backups/
+prestashop9_img/

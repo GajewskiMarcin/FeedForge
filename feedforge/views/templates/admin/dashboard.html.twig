@@ -1,0 +1,152 @@
+{% extends '@Modules/feedforge/views/templates/admin/layout.html.twig' %}
+
+{% block ff_content %}
+    <div class="ff-page-header">
+        <p class="ff-page-desc">{{ 'Google Merchant Center synchronization overview'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+        <div class="ff-page-actions">
+            <button class="ff-btn ff-btn--secondary" id="ff-refresh-stats">
+                ↻ {{ 'Refresh'|trans({}, 'Modules.Feedforge.Admin') }}
+            </button>
+            <button class="ff-btn ff-btn--primary" id="ff-sync-now">
+                ▶ {{ 'Sync now'|trans({}, 'Modules.Feedforge.Admin') }}
+            </button>
+        </div>
+    </div>
+
+    {# Connection status #}
+    <div id="ff-connection-status" class="ff-connection ff-connection--disconnected ff-mb-lg">
+        <div>
+            <span class="ff-dot ff-dot--neutral"></span>
+        </div>
+        <div class="ff-connection-info">
+            <h3 class="ff-connection-title">Google Merchant Center</h3>
+            <p class="ff-connection-detail">{{ 'Not connected — go to Configuration to connect your account'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+        </div>
+        <a href="{{ page_urls.config }}" class="ff-btn ff-btn--ghost ff-btn--sm">{{ 'Connect'|trans({}, 'Modules.Feedforge.Admin') }}</a>
+    </div>
+
+    {# Stat cards #}
+    <div class="ff-stats-grid" id="ff-stats">
+        <div class="ff-stat-card">
+            <p class="ff-stat-label">{{ 'All products'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            <p class="ff-stat-value" id="ff-stat-total">—</p>
+        </div>
+        <div class="ff-stat-card">
+            <p class="ff-stat-label">{{ 'Approved'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            <p class="ff-stat-value" id="ff-stat-approved">—</p>
+        </div>
+        <div class="ff-stat-card">
+            <p class="ff-stat-label">{{ 'Pending'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            <p class="ff-stat-value" id="ff-stat-pending">—</p>
+        </div>
+        <div class="ff-stat-card">
+            <p class="ff-stat-label">{{ 'Disapproved'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            <p class="ff-stat-value" id="ff-stat-disapproved">—</p>
+        </div>
+        <div class="ff-stat-card">
+            <p class="ff-stat-label">{{ 'Not synced'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            <p class="ff-stat-value" id="ff-stat-not-synced">—</p>
+        </div>
+    </div>
+
+    <div class="ff-grid ff-grid--sidebar">
+        {# Main column #}
+        <div>
+            {# Critical issues #}
+            <div class="ff-card" id="ff-critical-issues">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Critical issues'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="ff-issue-counts"></span>
+                        <a href="{{ page_urls.products }}&amp;filter=errors" class="ff-btn ff-btn--ghost ff-btn--sm">{{ 'View all'|trans({}, 'Modules.Feedforge.Admin') }}</a>
+                    </div>
+                </div>
+                <div class="ff-card-body">
+                    <div class="ff-empty" id="ff-issues-empty">
+                        <p class="ff-empty-title">{{ 'No issues'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <p class="ff-empty-text ff-text-muted">{{ 'All products look good'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    </div>
+                    <div id="ff-issues-list" class="ff-hidden"></div>
+                </div>
+            </div>
+
+            {# Last sync #}
+            <div class="ff-card" id="ff-last-sync">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Last synchronization'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                </div>
+                <div class="ff-card-body">
+                    <div class="ff-empty" id="ff-sync-empty">
+                        <p class="ff-empty-title">{{ 'No history'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                        <p class="ff-empty-text ff-text-muted">{{ 'Run your first synchronization'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    </div>
+                    <div id="ff-sync-info" class="ff-hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        {# Sidebar column #}
+        <div>
+            {# Account health #}
+            <div class="ff-card ff-hidden" id="ff-account-health">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'GMC account health'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                    <button class="ff-btn ff-btn--ghost ff-btn--sm" id="ff-refresh-account-status">↻</button>
+                </div>
+                <div class="ff-card-body">
+                    <div class="ff-flex-between ff-mb-md">
+                        <span class="ff-text-sm ff-text-muted">{{ 'Website claimed'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-text-sm" id="ff-website-claimed">—</span>
+                    </div>
+                    <div id="ff-account-issues-list"></div>
+                    <div id="ff-account-no-issues" class="ff-hidden">
+                        <p class="ff-text-sm ff-text-muted" style="text-align: center; padding: 8px 0;">{{ 'No account-level issues'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    </div>
+                </div>
+            </div>
+
+            {# Queue health #}
+            <div class="ff-card">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Sync queue'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                    <a href="{{ page_urls.queue }}" class="ff-btn ff-btn--ghost ff-btn--sm">{{ 'Manage'|trans({}, 'Modules.Feedforge.Admin') }}</a>
+                </div>
+                <div class="ff-card-body">
+                    <div class="ff-flex-between ff-mb-md">
+                        <span class="ff-text-sm ff-text-muted">{{ 'Pending'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-text-sm" id="ff-queue-pending">0</span>
+                    </div>
+                    <div class="ff-flex-between ff-mb-md">
+                        <span class="ff-text-sm ff-text-muted">{{ 'Processing'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-text-sm" id="ff-queue-processing">0</span>
+                    </div>
+                    <div class="ff-flex-between">
+                        <span class="ff-text-sm ff-text-muted">{{ 'Errors'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-text-sm" id="ff-queue-failed">0</span>
+                    </div>
+                </div>
+            </div>
+
+            {# Quick actions #}
+            <div class="ff-card">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Quick actions'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                </div>
+                <div class="ff-card-body" style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="ff-btn ff-btn--secondary ff-btn--sm" onclick="FeedForge.pages.dashboard.triggerSync('full')">
+                        {{ 'Full synchronization'|trans({}, 'Modules.Feedforge.Admin') }}
+                    </button>
+                    <button class="ff-btn ff-btn--secondary ff-btn--sm" onclick="FeedForge.pages.dashboard.triggerSync('delta')">
+                        {{ 'Delta synchronization'|trans({}, 'Modules.Feedforge.Admin') }}
+                    </button>
+                    <button class="ff-btn ff-btn--secondary ff-btn--sm" id="ff-refresh-statuses">
+                        {{ 'Refresh GMC statuses'|trans({}, 'Modules.Feedforge.Admin') }}
+                    </button>
+                    <a href="{{ page_urls.reports }}" class="ff-btn ff-btn--secondary ff-btn--sm">
+                        {{ 'Performance reports'|trans({}, 'Modules.Feedforge.Admin') }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

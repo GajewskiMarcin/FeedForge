@@ -1,0 +1,114 @@
+{% extends '@Modules/feedforge/views/templates/admin/layout.html.twig' %}
+
+{% block ff_content %}
+    <div class="ff-page-header">
+        <p class="ff-page-desc">{{ 'Feed Forge is a free open source module'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+    </div>
+
+    <div class="ff-grid ff-grid--2">
+        {# Buy me a coffee #}
+        <div class="ff-card" style="text-align: center; padding: 48px 32px;">
+            <div style="font-size: 48px; margin-bottom: 16px;">☕</div>
+            <h2 class="ff-card-title" style="font-size: 22px; margin-bottom: 8px;">{{ 'Do you like Feed Forge?'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+            <p class="ff-text-muted" style="margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">
+                {{ 'This module is completely free and open source. If it saves you time and money, consider supporting its development with a coffee'|trans({}, 'Modules.Feedforge.Admin') }} ☕
+            </p>
+            <a href="https://buymeacoffee.com/marcingajewski"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="ff-btn ff-btn--primary ff-btn--lg"
+               style="background: #FFDD00; color: #000000; font-weight: 600;">
+                ☕ Buy me a coffee
+            </a>
+            <p class="ff-text-xs ff-text-muted ff-mt-md">
+                {{ 'Every contribution motivates further development and adding new features'|trans({}, 'Modules.Feedforge.Admin') }}
+            </p>
+        </div>
+
+        {# Module info #}
+        <div>
+            <div class="ff-card ff-mb-md">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Module information'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                </div>
+                <div class="ff-card-body">
+                    <div class="ff-flex-between ff-mb-md">
+                        <span class="ff-text-sm ff-text-muted">{{ 'Version'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-text-sm ff-font-mono">1.0.0</span>
+                    </div>
+                    <div class="ff-flex-between ff-mb-md">
+                        <span class="ff-text-sm ff-text-muted">{{ 'Compatibility'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-text-sm">PrestaShop 8.0 – 9.x</span>
+                    </div>
+                    <div class="ff-flex-between ff-mb-md">
+                        <span class="ff-text-sm ff-text-muted">PHP</span>
+                        <span class="ff-text-sm">8.1+</span>
+                    </div>
+                    <div class="ff-flex-between ff-mb-md">
+                        <span class="ff-text-sm ff-text-muted">{{ 'License'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        <span class="ff-text-sm">MIT (open source)</span>
+                    </div>
+                    <div class="ff-flex-between">
+                        <span class="ff-text-sm ff-text-muted">API</span>
+                        <span class="ff-text-sm">Content API for Shopping v2.1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ff-card ff-mb-md">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Useful links'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                </div>
+                <div class="ff-card-body" style="display: flex; flex-direction: column; gap: 8px;">
+                    <a href="https://github.com/GajewskiMarcin/FeedForge" target="_blank" rel="noopener" class="ff-btn ff-btn--secondary ff-btn--sm">
+                        {{ 'GitHub — source code'|trans({}, 'Modules.Feedforge.Admin') }}
+                    </a>
+                    <a href="https://github.com/GajewskiMarcin/FeedForge/issues" target="_blank" rel="noopener" class="ff-btn ff-btn--secondary ff-btn--sm">
+                        {{ 'GitHub — report a bug'|trans({}, 'Modules.Feedforge.Admin') }}
+                    </a>
+                    <a href="https://developers.google.com/shopping-content" target="_blank" rel="noopener" class="ff-btn ff-btn--secondary ff-btn--sm">
+                        {{ 'Google Content API documentation'|trans({}, 'Modules.Feedforge.Admin') }}
+                    </a>
+                    <a href="https://merchants.google.com/" target="_blank" rel="noopener" class="ff-btn ff-btn--secondary ff-btn--sm">
+                        Google Merchant Center
+                    </a>
+                </div>
+            </div>
+
+            <div class="ff-card ff-mb-md">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Diagnostics'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                </div>
+                <div class="ff-card-body" id="ff-support-diagnostics">
+                    <div class="ff-empty">
+                        <div class="ff-spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ff-card">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Changelog'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                </div>
+                <div class="ff-card-body">
+                    <div class="ff-mb-md">
+                        <div class="ff-flex ff-gap-sm" style="align-items: center;">
+                            <span class="ff-badge ff-badge--info">v1.0.0</span>
+                            <span class="ff-text-xs ff-text-muted">{{ 'First release'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        </div>
+                        <ul class="ff-text-sm ff-mt-sm" style="margin: 0; padding-left: 20px; color: var(--ff-text-secondary);">
+                            <li>{{ 'Content API for Shopping integration'|trans({}, 'Modules.Feedforge.Admin') }}</li>
+                            <li>{{ 'OAuth 2.0 with auto token refresh'|trans({}, 'Modules.Feedforge.Admin') }}</li>
+                            <li>{{ 'Delta sync with change detection (SHA-1)'|trans({}, 'Modules.Feedforge.Admin') }}</li>
+                            <li>{{ 'Sync queue with batch processing'|trans({}, 'Modules.Feedforge.Admin') }}</li>
+                            <li>{{ 'Reports: impressions, clicks, CTR'|trans({}, 'Modules.Feedforge.Admin') }}</li>
+                            <li>{{ 'Rules: exclusions, pricing, identifiers, custom labels'|trans({}, 'Modules.Feedforge.Admin') }}</li>
+                            <li>{{ 'Google Taxonomy category mapping'|trans({}, 'Modules.Feedforge.Admin') }}</li>
+                            <li>{{ 'Multi-shop support'|trans({}, 'Modules.Feedforge.Admin') }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

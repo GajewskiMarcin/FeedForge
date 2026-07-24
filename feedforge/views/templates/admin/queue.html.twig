@@ -1,0 +1,109 @@
+{% extends '@Modules/feedforge/views/templates/admin/layout.html.twig' %}
+
+{% block ff_content %}
+    <div class="ff-page-header">
+        <p class="ff-page-desc">{{ 'Manage operations pending submission to Google'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+        <div class="ff-page-actions">
+            <button class="ff-btn ff-btn--secondary" id="ff-queue-retry-all">
+                ↻ {{ 'Retry failed'|trans({}, 'Modules.Feedforge.Admin') }}
+            </button>
+            <button class="ff-btn ff-btn--danger" id="ff-queue-clear-failed">
+                ✕ {{ 'Clear errors'|trans({}, 'Modules.Feedforge.Admin') }}
+            </button>
+        </div>
+    </div>
+
+    {# Queue health stats #}
+    <div class="ff-stats-grid">
+        <div class="ff-stat-card">
+            <p class="ff-stat-label">{{ 'In queue'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            <p class="ff-stat-value" id="ff-queue-stat-total">—</p>
+        </div>
+        <div class="ff-stat-card">
+            <p class="ff-stat-label">{{ 'Pending'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            <p class="ff-stat-value" id="ff-queue-stat-pending">—</p>
+        </div>
+        <div class="ff-stat-card">
+            <p class="ff-stat-label">{{ 'Processing'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            <p class="ff-stat-value" id="ff-queue-stat-processing">—</p>
+        </div>
+        <div class="ff-stat-card">
+            <p class="ff-stat-label">{{ 'Failed'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            <p class="ff-stat-value" id="ff-queue-stat-failed">—</p>
+        </div>
+    </div>
+
+    {# Health bar #}
+    <div class="ff-card ff-mb-lg" id="ff-queue-health-bar-card" style="padding: 0;">
+        <div class="ff-queue-health-bar" id="ff-queue-health-bar">
+            <div class="ff-queue-health-segment ff-queue-health--pending" id="ff-health-pending" style="width: 0%;"></div>
+            <div class="ff-queue-health-segment ff-queue-health--processing" id="ff-health-processing" style="width: 0%;"></div>
+            <div class="ff-queue-health-segment ff-queue-health--failed" id="ff-health-failed" style="width: 0%;"></div>
+        </div>
+        <div class="ff-queue-health-legend" id="ff-queue-health-legend"></div>
+    </div>
+
+    {# Failed items alert #}
+    <div id="ff-queue-failed-alert" class="ff-alert ff-alert--danger ff-hidden">
+        <span>⚠</span>
+        <span>
+            {{ '<strong id="ff-queue-failed-count">0</strong> items failed. Check details below or retry.'|trans({}, 'Modules.Feedforge.Admin')|raw }}
+        </span>
+    </div>
+
+    {# Filters #}
+    <div class="ff-card ff-mb-lg">
+        <div class="ff-flex ff-gap-md" style="align-items: flex-end;">
+            <div class="ff-form-group" style="width: 180px; margin: 0;">
+                <label class="ff-label">{{ 'Status'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                <select class="ff-select" id="ff-queue-status-filter">
+                    <option value="">{{ 'All'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="pending">{{ 'Pending'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="processing">{{ 'Processing'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="failed">{{ 'Failed'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="completed">{{ 'Completed'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                </select>
+            </div>
+            <div class="ff-form-group" style="width: 180px; margin: 0;">
+                <label class="ff-label">{{ 'Action'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                <select class="ff-select" id="ff-queue-action-filter">
+                    <option value="">{{ 'All'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="insert">{{ 'Insert'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="update">{{ 'Update'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="delete">{{ 'Delete'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    {# Queue table #}
+    <div class="ff-card">
+        <div class="ff-table-wrap">
+            <table class="ff-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'Product ID'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                        <th>{{ 'Name'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                        <th>{{ 'Action'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                        <th>{{ 'Priority'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                        <th>{{ 'Attempts'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                        <th>{{ 'Scheduled'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                        <th>{{ 'Status'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                        <th class="ff-table-actions">{{ 'Actions'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                    </tr>
+                </thead>
+                <tbody id="ff-queue-tbody">
+                    <tr>
+                        <td colspan="8">
+                            <div class="ff-empty">
+                                <p class="ff-empty-title">{{ 'Queue is empty'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                                <p class="ff-empty-text ff-text-muted">{{ 'No items to synchronize'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="ff-queue-pagination"></div>
+    </div>
+{% endblock %}

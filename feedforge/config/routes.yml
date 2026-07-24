@@ -1,0 +1,481 @@
+# Feed Forge - Symfony Routes
+# Page routes (render Twig templates)
+
+feedforge_index:
+    path: /feedforge/
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\FeedForgeController::dashboardAction'
+        _legacy_controller: AdminFeedForgeDashboard
+        _legacy_link: AdminFeedForgeDashboard
+
+feedforge_dashboard:
+    path: /feedforge/dashboard
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\FeedForgeController::dashboardAction'
+        _legacy_controller: AdminFeedForgeDashboard
+        _legacy_link: AdminFeedForgeDashboard
+
+feedforge_products:
+    path: /feedforge/products
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\FeedForgeController::productsAction'
+        _legacy_controller: AdminFeedForgeProducts
+        _legacy_link: AdminFeedForgeProducts
+
+feedforge_product_detail:
+    path: /feedforge/products/{productId}
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\FeedForgeController::productDetailAction'
+        _legacy_controller: AdminFeedForgeProducts
+        _legacy_link: AdminFeedForgeProducts
+    requirements:
+        productId: '\d+'
+
+feedforge_queue:
+    path: /feedforge/queue
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\FeedForgeController::queueAction'
+        _legacy_controller: AdminFeedForgeQueue
+        _legacy_link: AdminFeedForgeQueue
+
+feedforge_reports:
+    path: /feedforge/reports
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\FeedForgeController::reportsAction'
+        _legacy_controller: AdminFeedForgeReports
+        _legacy_link: AdminFeedForgeReports
+
+feedforge_rules:
+    path: /feedforge/rules
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\FeedForgeController::rulesAction'
+        _legacy_controller: AdminFeedForgeRules
+        _legacy_link: AdminFeedForgeRules
+
+feedforge_config:
+    path: /feedforge/config
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\FeedForgeController::configAction'
+        _legacy_controller: AdminFeedForgeConfig
+        _legacy_link: AdminFeedForgeConfig
+
+feedforge_support:
+    path: /feedforge/support
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\FeedForgeController::supportAction'
+        _legacy_controller: AdminFeedForgeSupport
+        _legacy_link: AdminFeedForgeSupport
+
+# Feed edit page (dedicated subpage)
+
+feedforge_feed_new:
+    path: /feedforge/feeds/new
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\FeedForgeController::feedEditAction'
+        _legacy_controller: AdminFeedForgeConfig
+        _legacy_link: AdminFeedForgeConfig
+        feedId: 0
+
+feedforge_feed_edit:
+    path: /feedforge/feeds/edit/{feedId}
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\FeedForgeController::feedEditAction'
+        _legacy_controller: AdminFeedForgeConfig
+        _legacy_link: AdminFeedForgeConfig
+        feedId: 0
+    requirements:
+        feedId: '\d+'
+
+# API routes (return JSON)
+
+feedforge_api_dashboard_stats:
+    path: /feedforge/api/dashboard/stats
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::dashboardStatsAction'
+        _legacy_controller: AdminFeedForgeDashboard
+
+feedforge_api_products_list:
+    path: /feedforge/api/products
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::productsListAction'
+        _legacy_controller: AdminFeedForgeProducts
+
+feedforge_api_product_detail:
+    path: /feedforge/api/products/{productId}
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::productDetailAction'
+        _legacy_controller: AdminFeedForgeProducts
+    requirements:
+        productId: '\d+'
+
+feedforge_api_products_sync:
+    path: /feedforge/api/products/sync
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::productsSyncAction'
+        _legacy_controller: AdminFeedForgeProducts
+
+feedforge_api_products_remove:
+    path: /feedforge/api/products/remove
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::productsRemoveAction'
+        _legacy_controller: AdminFeedForgeProducts
+
+feedforge_api_queue_list:
+    path: /feedforge/api/queue
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::queueListAction'
+        _legacy_controller: AdminFeedForgeQueue
+
+feedforge_api_queue_retry:
+    path: /feedforge/api/queue/retry
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::queueRetryAction'
+        _legacy_controller: AdminFeedForgeQueue
+
+feedforge_api_queue_clear:
+    path: /feedforge/api/queue/clear
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::queueClearAction'
+        _legacy_controller: AdminFeedForgeQueue
+
+feedforge_api_reports:
+    path: /feedforge/api/reports
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::reportsAction'
+        _legacy_controller: AdminFeedForgeReports
+
+feedforge_api_rules_list:
+    path: /feedforge/api/rules
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::rulesListAction'
+        _legacy_controller: AdminFeedForgeRules
+
+feedforge_api_rules_save:
+    path: /feedforge/api/rules/save
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::rulesSaveAction'
+        _legacy_controller: AdminFeedForgeRules
+
+feedforge_api_rules_delete:
+    path: /feedforge/api/rules/delete
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::rulesDeleteAction'
+        _legacy_controller: AdminFeedForgeRules
+
+feedforge_api_categories_list:
+    path: /feedforge/api/categories
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::categoriesListAction'
+        _legacy_controller: AdminFeedForgeRules
+
+feedforge_api_categories_save:
+    path: /feedforge/api/categories/save
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::categoriesSaveAction'
+        _legacy_controller: AdminFeedForgeRules
+
+feedforge_api_taxonomy_search:
+    path: /feedforge/api/taxonomy/search
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::taxonomySearchAction'
+        _legacy_controller: AdminFeedForgeRules
+
+feedforge_api_taxonomy_import:
+    path: /feedforge/api/taxonomy/import
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::taxonomyImportAction'
+        _legacy_controller: AdminFeedForgeRules
+
+feedforge_api_config_get:
+    path: /feedforge/api/config
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::configGetAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_config_save:
+    path: /feedforge/api/config/save
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::configSaveAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_feeds_list:
+    path: /feedforge/api/feeds
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::feedsListAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_feeds_save:
+    path: /feedforge/api/feeds/save
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::feedsSaveAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_attribute_maps:
+    path: /feedforge/api/attribute-maps
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::attributeMapsListAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_attribute_maps_save:
+    path: /feedforge/api/attribute-maps/save
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::attributeMapsSaveAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_status_sync:
+    path: /feedforge/api/status/sync
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::statusSyncAction'
+        _legacy_controller: AdminFeedForgeDashboard
+
+feedforge_api_account_status:
+    path: /feedforge/api/account-status
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::accountStatusAction'
+        _legacy_controller: AdminFeedForgeDashboard
+
+# Dashboard-scoped sync route (same action, dashboard token)
+feedforge_api_dashboard_trigger_sync:
+    path: /feedforge/api/dashboard/sync
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::productsSyncAction'
+        _legacy_controller: AdminFeedForgeDashboard
+
+# Support diagnostics routes (read-only, support token)
+feedforge_api_support_stats:
+    path: /feedforge/api/support/stats
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::dashboardStatsAction'
+        _legacy_controller: AdminFeedForgeSupport
+
+feedforge_api_support_config:
+    path: /feedforge/api/support/config
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::configGetAction'
+        _legacy_controller: AdminFeedForgeSupport
+
+feedforge_api_shipping_preview:
+    path: /feedforge/api/shipping/preview
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::shippingPreviewAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_shipping_current:
+    path: /feedforge/api/shipping/current
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::shippingCurrentAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_shipping_push:
+    path: /feedforge/api/shipping/push
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::shippingPushAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_reports_refresh:
+    path: /feedforge/api/reports/refresh
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::reportsRefreshAction'
+        _legacy_controller: AdminFeedForgeReports
+
+# PrestaShop data API (for feed filter UI)
+
+feedforge_api_ps_categories:
+    path: /feedforge/api/ps/categories
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::psCategoriesAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_ps_manufacturers:
+    path: /feedforge/api/ps/manufacturers
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::psManufacturersAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_ps_features:
+    path: /feedforge/api/ps/features
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::psFeaturesAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_ps_suppliers:
+    path: /feedforge/api/ps/suppliers
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::psSuppliersAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_ps_tags:
+    path: /feedforge/api/ps/tags
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::psTagsAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_ps_product_lookup:
+    path: /feedforge/api/ps/product-lookup
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::psProductLookupAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_feeds_count:
+    path: /feedforge/api/feeds/count
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::feedsCountAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_feeds_delete:
+    path: /feedforge/api/feeds/delete
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::feedsDeleteAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+# Promotions API
+
+feedforge_api_promotions_list:
+    path: /feedforge/api/promotions
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::promotionsListAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_promotions_scan:
+    path: /feedforge/api/promotions/scan
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::promotionsScanAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_promotions_save:
+    path: /feedforge/api/promotions/save
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::promotionsSaveAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_promotions_sync:
+    path: /feedforge/api/promotions/sync
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::promotionsSyncAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_promotions_delete:
+    path: /feedforge/api/promotions/delete
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::promotionsDeleteAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_data_sources_list:
+    path: /feedforge/api/data-sources
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::dataSourcesListAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_data_sources_provision:
+    path: /feedforge/api/data-sources/provision
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::dataSourcesProvisionAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_google_accounts_list:
+    path: /feedforge/api/google-accounts
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::googleAccountsListAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_google_account_select:
+    path: /feedforge/api/google-accounts/select
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::googleAccountSelectAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_api_google_register_developer:
+    path: /feedforge/api/google-accounts/register-developer
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\ApiController::googleRegisterDeveloperAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+# OAuth routes
+
+feedforge_oauth_connect:
+    path: /feedforge/oauth/connect
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\OAuthController::connectAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+feedforge_oauth_callback:
+    path: /feedforge/oauth/callback
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\OAuthController::callbackAction'
+
+feedforge_oauth_disconnect:
+    path: /feedforge/oauth/disconnect
+    methods: [POST]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\OAuthController::disconnectAction'
+        _legacy_controller: AdminFeedForgeConfig
+
+# Cron route
+
+feedforge_cron_run:
+    path: /feedforge/cron/run
+    methods: [GET]
+    defaults:
+        _controller: 'FeedForge\Controller\Admin\CronController::runAction'

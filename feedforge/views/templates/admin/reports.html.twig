@@ -1,0 +1,130 @@
+{% extends '@Modules/feedforge/views/templates/admin/layout.html.twig' %}
+
+{% block ff_content %}
+    <div class="ff-page-header">
+        <p class="ff-page-desc">{{ 'Impressions, clicks and CTR from Google Merchant Center'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+        <div class="ff-page-actions">
+            <button class="ff-btn ff-btn--secondary" id="ff-reports-refresh">
+                ↻ {{ 'Refresh data'|trans({}, 'Modules.Feedforge.Admin') }}
+            </button>
+        </div>
+    </div>
+
+    {# Period & country filters #}
+    <div class="ff-card ff-mb-lg">
+        <div class="ff-flex ff-gap-md" style="align-items: flex-end;">
+            <div class="ff-form-group" style="width: 180px; margin: 0;">
+                <label class="ff-label">{{ 'Period'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                <select class="ff-select" id="ff-reports-period">
+                    <option value="7d">{{ 'Last 7 days'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="14d">{{ 'Last 14 days'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="30d" selected>{{ 'Last 30 days'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                    <option value="90d">{{ 'Last 90 days'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                </select>
+            </div>
+            <div class="ff-form-group" style="width: 180px; margin: 0;">
+                <label class="ff-label">{{ 'Country'|trans({}, 'Modules.Feedforge.Admin') }}</label>
+                <select class="ff-select" id="ff-reports-country">
+                    <option value="">{{ 'All countries'|trans({}, 'Modules.Feedforge.Admin') }}</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    {# Summary stats #}
+    <div class="ff-stats-grid">
+        <div class="ff-stat-card">
+            <p class="ff-stat-label">{{ 'Impressions'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            <p class="ff-stat-value" id="ff-report-impressions">—</p>
+            <div class="ff-stat-trend" id="ff-report-impressions-trend"></div>
+        </div>
+        <div class="ff-stat-card">
+            <p class="ff-stat-label">{{ 'Clicks'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            <p class="ff-stat-value" id="ff-report-clicks">—</p>
+            <div class="ff-stat-trend" id="ff-report-clicks-trend"></div>
+        </div>
+        <div class="ff-stat-card">
+            <p class="ff-stat-label">{{ 'CTR'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            <p class="ff-stat-value" id="ff-report-ctr">—</p>
+            <div class="ff-stat-trend" id="ff-report-ctr-trend"></div>
+        </div>
+    </div>
+
+    {# Chart #}
+    <div class="ff-card ff-mb-lg">
+        <div class="ff-card-header">
+            <h2 class="ff-card-title">{{ 'Performance trend'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+        </div>
+        <div class="ff-card-body">
+            <canvas id="ff-performance-chart" height="300"></canvas>
+            <div class="ff-empty ff-hidden" id="ff-chart-empty">
+                <p class="ff-empty-title">{{ 'No data'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                <p class="ff-empty-text ff-text-muted">{{ 'Report data will appear after the first synchronization'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+            </div>
+        </div>
+    </div>
+
+    {# Tabs: by product / by country #}
+    <div>
+        <div class="ff-tabs" data-ff-tabs>
+            <button class="ff-tab ff-tab--active" data-ff-tab="by-product">{{ 'By product'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+            <button class="ff-tab" data-ff-tab="by-country">{{ 'By country'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+        </div>
+
+        <div class="ff-tab-panel ff-tab-panel--active" data-ff-panel="by-product">
+            <div class="ff-card">
+                <div class="ff-table-wrap">
+                    <table class="ff-table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'Product'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th class="ff-table-numeric">{{ 'Impressions'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th class="ff-table-numeric">{{ 'Clicks'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th class="ff-table-numeric">{{ 'CTR'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ff-report-by-product">
+                            <tr>
+                                <td colspan="4">
+                                    <div class="ff-empty">
+                                        <p class="ff-empty-text ff-text-muted">{{ 'No report data'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="ff-tab-panel" data-ff-panel="by-country">
+            <div class="ff-card">
+                <div class="ff-table-wrap">
+                    <table class="ff-table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'Country'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th class="ff-table-numeric">{{ 'Impressions'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th class="ff-table-numeric">{{ 'Clicks'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                                <th class="ff-table-numeric">{{ 'CTR'|trans({}, 'Modules.Feedforge.Admin') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ff-report-by-country">
+                            <tr>
+                                <td colspan="4">
+                                    <div class="ff-empty">
+                                        <p class="ff-empty-text ff-text-muted">{{ 'No report data'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block ff_scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+{% endblock %}

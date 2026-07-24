@@ -1,0 +1,80 @@
+{% extends '@Modules/feedforge/views/templates/admin/layout.html.twig' %}
+
+{% block ff_content %}
+    <div class="ff-page-header">
+        <p class="ff-page-desc">{{ 'Product #%id% details — status and data in Google Merchant Center'|trans({'%id%': productId}, 'Modules.Feedforge.Admin') }}</p>
+        <div class="ff-page-actions">
+            <a href="javascript:void(0)" class="ff-btn ff-btn--secondary" id="ff-back-to-products">&larr; {{ 'Back to list'|trans({}, 'Modules.Feedforge.Admin') }}</a>
+            <button class="ff-btn ff-btn--primary" id="ff-resync-product" data-product-id="{{ productId }}">
+                ▶ {{ 'Re-sync'|trans({}, 'Modules.Feedforge.Admin') }}
+            </button>
+        </div>
+    </div>
+
+    {# Tabs #}
+    <div>
+        <div class="ff-tabs" data-ff-tabs>
+            <button class="ff-tab ff-tab--active" data-ff-tab="data">{{ 'GMC data'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+            <button class="ff-tab" data-ff-tab="status">{{ 'Status'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+            <button class="ff-tab" data-ff-tab="errors">{{ 'Errors'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+            <button class="ff-tab" data-ff-tab="history">{{ 'Sync history'|trans({}, 'Modules.Feedforge.Admin') }}</button>
+        </div>
+
+        {# Data tab #}
+        <div class="ff-tab-panel ff-tab-panel--active" data-ff-panel="data">
+            <div class="ff-card">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Data sent to Google Merchant Center'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                </div>
+                <div class="ff-card-body" id="ff-product-gmc-data">
+                    <div class="ff-empty">
+                        <div class="ff-spinner"></div>
+                        <p class="ff-empty-text ff-mt-sm">{{ 'Loading data...'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Status tab #}
+        <div class="ff-tab-panel" data-ff-panel="status">
+            <div class="ff-card">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Approval status'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                </div>
+                <div class="ff-card-body" id="ff-product-status">
+                    <div class="ff-empty">
+                        <div class="ff-spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Errors tab #}
+        <div class="ff-tab-panel" data-ff-panel="errors">
+            <div class="ff-card">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Errors and warnings'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                </div>
+                <div class="ff-card-body" id="ff-product-errors">
+                    <div class="ff-empty">
+                        <div class="ff-spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# History tab #}
+        <div class="ff-tab-panel" data-ff-panel="history">
+            <div class="ff-card">
+                <div class="ff-card-header">
+                    <h2 class="ff-card-title">{{ 'Synchronization history'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
+                </div>
+                <div class="ff-card-body" id="ff-product-history">
+                    <div class="ff-empty">
+                        <div class="ff-spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

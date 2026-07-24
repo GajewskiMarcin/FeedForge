@@ -1,0 +1,12 @@
+DROP TABLE IF EXISTS `PREFIX_feedforge_promotion`;
+DROP TABLE IF EXISTS `PREFIX_feedforge_attribute_map`;
+DROP TABLE IF EXISTS `PREFIX_feedforge_feed_config`;
+DROP TABLE IF EXISTS `PREFIX_feedforge_sync_log`;
+DROP TABLE IF EXISTS `PREFIX_feedforge_report_cache`;
+DROP TABLE IF EXISTS `PREFIX_feedforge_rule`;
+DROP TABLE IF EXISTS `PREFIX_feedforge_taxonomy`;
+DROP TABLE IF EXISTS `PREFIX_feedforge_category_map`;
+DROP TABLE IF EXISTS `PREFIX_feedforge_product_status`;
+DROP TABLE IF EXISTS `PREFIX_feedforge_sync_queue`;
+DROP TABLE IF EXISTS `PREFIX_feedforge_product`;
+DROP TABLE IF EXISTS `PREFIX_feedforge_account`;

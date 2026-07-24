@@ -1,0 +1,40 @@
+{% extends '@PrestaShop/Admin/layout.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('modules/feedforge/views/css/feedforge.css') }}">
+{% endblock %}
+
+{% block content %}
+    <link rel="stylesheet" href="/modules/feedforge/views/css/feedforge.css?v={{ cssVersion|default(moduleVersion|default('1.0.0')) }}">
+
+    <div class="ff-wrap"
+         data-page="{{ page }}"
+         data-api-base-url="auto"
+         data-module-path="/modules/feedforge/">
+
+        {# Tab navigation — inside ff-wrap so our CSS namespace protects it from PS9 styles #}
+        {% if nav is defined %}
+        <nav class="ff-topnav">
+            <div class="ff-topnav-inner">
+                {% for tab in nav %}
+                    <a href="{{ tab.url }}"
+                       class="ff-topnav-tab{% if tab.active %} ff-topnav-tab--active{% endif %}">
+                        {{ tab.label }}
+                    </a>
+                {% endfor %}
+            </div>
+        </nav>
+        {% endif %}
+
+        {% block ff_content %}{% endblock %}
+    </div>
+    <script id="ff-translations" type="application/json">{{ jsTranslations|default({})|json_encode|raw }}</script>
+    <script src="/modules/feedforge/views/js/feedforge.js?v={{ jsVersion|default(moduleVersion|default('1.0.0')) }}"></script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('modules/feedforge/views/js/feedforge.js') }}"></script>
+    {% block ff_scripts %}{% endblock %}
+{% endblock %}
