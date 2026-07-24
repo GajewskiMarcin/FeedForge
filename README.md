@@ -47,7 +47,10 @@ OAuth credentials.
 | PrestaShop  | 8.0 – 9.x |
 | PHP         | ≥ 8.1 |
 | PHP ext     | `bcmath` |
-| Composer    | for the `google/auth` dependency |
+
+The release ZIP bundles all PHP dependencies, so **Composer is not needed to
+install** — it is only required when building from source (see
+[Development](#development--building-from-source)).
 
 A Google Cloud project with the **Merchant API** enabled and an OAuth 2.0 Client
 (Web application) is required — you provide the Client ID and Client Secret in the
@@ -129,7 +132,7 @@ vendor/bin/phpunit        # run the unit tests (PHPUnit 10)
 
 To produce an installable archive, zip the `feedforge/` folder **with its
 `vendor/` directory included** (excluding `tests/`, `phpunit.xml`,
-`.gitignore`, and `composer.lock`). That self-contained ZIP — around 2 MB — is
+`.gitignore`, and `composer.lock`). That self-contained ZIP — under 1 MB — is
 exactly what ships on the [Releases](https://github.com/GajewskiMarcin/FeedForge/releases)
 page.
 
