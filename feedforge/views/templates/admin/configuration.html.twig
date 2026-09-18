@@ -13,7 +13,7 @@
         <div class="ff-card-body">
             <p class="ff-text-sm ff-text-muted ff-mb-md">
                 {{ 'Create a project in'|trans({}, 'Modules.Feedforge.Admin') }} <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a>,
-                {{ 'enable'|trans({}, 'Modules.Feedforge.Admin') }} <strong>Content API for Shopping</strong>, {{ 'then create OAuth 2.0 credentials (type: Web application).'|trans({}, 'Modules.Feedforge.Admin') }}
+                {{ 'enable'|trans({}, 'Modules.Feedforge.Admin') }} <strong>Merchant API</strong>, {{ 'then create OAuth 2.0 credentials (type: Web application).'|trans({}, 'Modules.Feedforge.Admin') }}
                 {{ 'As the redirect URI enter:'|trans({}, 'Modules.Feedforge.Admin') }} <code>{{ app.request.schemeAndHttpHost }}{{ app.request.baseUrl }}/modules/feedforge/oauth/callback</code>
             </p>
             <div class="ff-form-group">

@@ -24,6 +24,39 @@ class DataSourceService
     /** Merchant API base path for the DataSources sub-API. */
     private const BASE_PATH = '/datasources/v1';
 
+    /**
+     * Destination sets tried, in order, when creating a primary product DataSource.
+     *
+     * Google validates `primaryProductDataSource.destinations` against the destinations
+     * actually enabled on the Merchant Center account and rejects the whole request when
+     * one of them isn't available — e.g. an account not enrolled in free listings gets
+     * "[primaryProductDataSource.destinations] Destinations of the data source are
+     * invalid: SHOPPING_PLUS" (SHOPPING_PLUS is Google's legacy internal name for
+     * FREE_LISTINGS). So we degrade: ask for both, then for whichever one the account
+     * might have, and finally send no `destinations` at all.
+     *
+     * The last entry (null) is the documented default — "all newly created data sources
+     * are available by default for all the destinations enabled on the account" — but we
+     * don't start there on purpose: with no destinations given, an account that has local
+     * destinations enabled can end up with a local-only data source, and every online
+     * product insert then fails with "data source channel does not match product channel".
+     *
+     * @var array<int, array<int, array{destination: string, state: string}>|null>
+     */
+    private const DESTINATION_FALLBACKS = [
+        [
+            ['destination' => 'SHOPPING_ADS', 'state' => 'ENABLED'],
+            ['destination' => 'FREE_LISTINGS', 'state' => 'ENABLED'],
+        ],
+        [
+            ['destination' => 'SHOPPING_ADS', 'state' => 'ENABLED'],
+        ],
+        [
+            ['destination' => 'FREE_LISTINGS', 'state' => 'ENABLED'],
+        ],
+        null,
+    ];
+
     public function __construct(
         private readonly MerchantApiHttpClient $http,
         private readonly GoogleApiClient $apiClient,
@@ -59,50 +92,77 @@ class DataSourceService
 
     /**
      * Create a new primary product DataSource in Google Merchant Center for the given feed config.
+     *
+     * Retries with progressively smaller destination sets when Google rejects the ones we
+     * asked for — see self::DESTINATION_FALLBACKS.
      */
     public function createForFeed(int $shopId, FeedConfig $feed): string
     {
         $merchantId = $this->apiClient->getMerchantId($shopId);
 
-        $body = [
-            'displayName' => sprintf(
-                'Feed Forge — %s/%s/%s',
-                strtoupper($feed->country_code),
-                strtolower($feed->language_code),
-                strtoupper($feed->currency_code)
-            ),
-            'primaryProductDataSource' => [
-                'feedLabel' => strtoupper($feed->country_code),
-                'contentLanguage' => strtolower($feed->language_code),
-                'countries' => [strtoupper($feed->country_code)],
-                'destinations' => [
-                    ['destination' => 'SHOPPING_ADS', 'state' => 'ENABLED'],
-                    ['destination' => 'FREE_LISTINGS', 'state' => 'ENABLED'],
-                ],
-            ],
+        $displayName = sprintf(
+            'Feed Forge — %s/%s/%s',
+            strtoupper($feed->country_code),
+            strtolower($feed->language_code),
+            strtoupper($feed->currency_code)
+        );
+
+        $baseSource = [
+            'feedLabel' => strtoupper($feed->country_code),
+            'contentLanguage' => strtolower($feed->language_code),
+            'countries' => [strtoupper($feed->country_code)],
         ];
 
-        try {
-            $response = $this->http->post(
-                $shopId,
-                sprintf('%s/accounts/%s/dataSources', self::BASE_PATH, $merchantId),
-                $body
-            );
-        } catch (MerchantApiException $e) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Failed to create Merchant API DataSource for feed #%d (%s/%s): %s',
-                    $feed->id_feedforge_feed_config,
-                    $feed->country_code,
-                    $feed->language_code,
-                    $e->getMessage()
-                ),
-                0,
-                $e
-            );
+        $lastException = null;
+
+        foreach (self::DESTINATION_FALLBACKS as $destinations) {
+            $source = $baseSource;
+            if ($destinations !== null) {
+                $source['destinations'] = $destinations;
+            }
+
+            try {
+                $response = $this->http->post(
+                    $shopId,
+                    sprintf('%s/accounts/%s/dataSources', self::BASE_PATH, $merchantId),
+                    [
+                        'displayName' => $displayName,
+                        'primaryProductDataSource' => $source,
+                    ]
+                );
+
+                return (string) ($response['name'] ?? '');
+            } catch (MerchantApiException $e) {
+                $lastException = $e;
+
+                // Anything that isn't Google refusing our destinations won't be fixed by
+                // asking for fewer of them — fail fast instead of burning three more calls.
+                if (!$this->isDestinationRejection($e)) {
+                    break;
+                }
+            }
         }
 
-        return (string) ($response['name'] ?? '');
+        throw new \RuntimeException(
+            sprintf(
+                'Failed to create Merchant API DataSource for feed #%d (%s/%s): %s',
+                $feed->id_feedforge_feed_config,
+                $feed->country_code,
+                $feed->language_code,
+                $lastException !== null ? $lastException->getMessage() : 'unknown error'
+            ),
+            0,
+            $lastException
+        );
+    }
+
+    /**
+     * Did Google reject the request because of the destinations we asked for?
+     */
+    private function isDestinationRejection(MerchantApiException $e): bool
+    {
+        return $e->getHttpStatus() === 400
+            && stripos($e->getMessage(), 'destination') !== false;
     }
 
     /**

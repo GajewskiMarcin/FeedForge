@@ -96,7 +96,7 @@ class FeedForge extends Module
     {
         $this->name = 'feedforge';
         $this->tab = 'advertising_marketing';
-        $this->version = '2.0.2';
+        $this->version = '2.0.3';
         $this->author = 'Feed Forge';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = ['min' => '8.0.0', 'max' => '9.99.99'];
@@ -106,7 +106,7 @@ class FeedForge extends Module
 
         $this->displayName = $this->trans('Feed Forge', [], 'Modules.Feedforge.Admin');
         $this->description = $this->trans(
-            'Google Merchant Center integration via Content API for Shopping. Sync products, monitor statuses, view analytics.',
+            'Google Merchant Center integration via the Google Merchant API. Sync products, monitor statuses, view analytics.',
             [],
             'Modules.Feedforge.Admin'
         );

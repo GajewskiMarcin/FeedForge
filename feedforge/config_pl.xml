@@ -2,7 +2,7 @@
 <module>
     <name>feedforge</name>
     <displayName><![CDATA[Feed Forge]]></displayName>
-    <version><![CDATA[2.0.2]]></version>
+    <version><![CDATA[2.0.3]]></version>
     <description><![CDATA[Integracja z Google Merchant Center przez Google Merchant API. Synchronizuj produkty, monitoruj statusy, przeglądaj analitykę.]]></description>
     <author><![CDATA[Feed Forge]]></author>
     <tab><![CDATA[advertising_marketing]]></tab>
