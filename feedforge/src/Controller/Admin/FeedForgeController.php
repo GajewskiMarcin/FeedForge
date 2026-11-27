@@ -116,7 +116,7 @@ class FeedForgeController extends BaseController
     }
 
     /**
-     * Support - Buy me a coffee, links, info
+     * Support - Ko-fi, Quince Project, links, info
      */
     public function supportAction(): Response
     {

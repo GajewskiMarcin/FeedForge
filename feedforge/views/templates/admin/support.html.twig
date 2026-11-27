@@ -6,23 +6,48 @@
     </div>
 
     <div class="ff-grid ff-grid--2">
-        {# Buy me a coffee #}
-        <div class="ff-card" style="text-align: center; padding: 48px 32px;">
+        <div>
+        {# Support on Ko-fi #}
+        <div class="ff-card ff-mb-md" style="text-align: center; padding: 48px 32px;">
             <div style="font-size: 48px; margin-bottom: 16px;">☕</div>
             <h2 class="ff-card-title" style="font-size: 22px; margin-bottom: 8px;">{{ 'Do you like Feed Forge?'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
             <p class="ff-text-muted" style="margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">
                 {{ 'This module is completely free and open source. If it saves you time and money, consider supporting its development with a coffee'|trans({}, 'Modules.Feedforge.Admin') }} ☕
             </p>
-            <a href="https://buymeacoffee.com/marcingajewski"
+            <a href="https://ko-fi.com/quinceproject"
                target="_blank"
                rel="noopener noreferrer"
                class="ff-btn ff-btn--primary ff-btn--lg"
                style="background: #FFDD00; color: #000000; font-weight: 600;">
-                ☕ Buy me a coffee
+                ☕ {{ 'Support on Ko-fi'|trans({}, 'Modules.Feedforge.Admin') }}
             </a>
             <p class="ff-text-xs ff-text-muted ff-mt-md">
                 {{ 'Every contribution motivates further development and adding new features'|trans({}, 'Modules.Feedforge.Admin') }}
             </p>
+        </div>
+
+        {# Quince Project: the author's theme and module suite (views/css/quince-promo.css) #}
+        <link rel="stylesheet" href="{{ asset('../modules/feedforge/views/css/quince-promo.css') }}">
+        <section class="quince-promo">
+            <div class="quince-promo-wash" aria-hidden="true"></div>
+            <i class="quince-promo-beam b1" aria-hidden="true"></i><i class="quince-promo-beam b2" aria-hidden="true"></i><i class="quince-promo-beam b3" aria-hidden="true"></i><i class="quince-promo-beam b4" aria-hidden="true"></i>
+            <div class="quince-promo-in">
+                <p class="quince-promo-lead">{{ 'Discover the theme and engine for PrestaShop'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                <p class="quince-promo-word">Quince Project</p>
+                <p class="quince-promo-text">{{ 'A set of over 20 modules and a theme that let you freely manage the look and content of your shop and support back-office processes.'|trans({}, 'Modules.Feedforge.Admin') }}</p>
+                <div class="quince-promo-cta">
+                    <a class="quince-promo-btn" href="https://github.com/quinceproject" target="_blank" rel="noopener noreferrer">
+                        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"/></svg>
+                        {{ 'Download for free from GitHub'|trans({}, 'Modules.Feedforge.Admin') }}
+                    </a>
+                </div>
+                <div class="quince-promo-facts">
+                    <div><b>PrestaShop 9.2</b></div>
+                    <div><b>{{ 'PHP 8.1 or newer'|trans({}, 'Modules.Feedforge.Admin') }}</b></div>
+                    <div><b>{{ 'OSL-3.0 licence'|trans({}, 'Modules.Feedforge.Admin') }}</b></div>
+                </div>
+            </div>
+        </section>
         </div>
 
         {# Module info #}
@@ -91,6 +116,15 @@
                     <h2 class="ff-card-title">{{ 'Changelog'|trans({}, 'Modules.Feedforge.Admin') }}</h2>
                 </div>
                 <div class="ff-card-body">
+                    <div class="ff-mb-md">
+                        <div class="ff-flex ff-gap-sm" style="align-items: center;">
+                            <span class="ff-badge ff-badge--info">v2.0.5</span>
+                            <span class="ff-text-xs ff-text-muted">{{ 'Support page'|trans({}, 'Modules.Feedforge.Admin') }}</span>
+                        </div>
+                        <ul class="ff-text-sm ff-mt-sm" style="margin: 0; padding-left: 20px; color: var(--ff-text-secondary);">
+                            <li>{{ 'Support on Ko-fi and a Quince Project block with a link to the project on GitHub'|trans({}, 'Modules.Feedforge.Admin') }}</li>
+                        </ul>
+                    </div>
                     <div class="ff-mb-md">
                         <div class="ff-flex ff-gap-sm" style="align-items: center;">
                             <span class="ff-badge ff-badge--info">v2.0.4</span>

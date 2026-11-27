@@ -9,7 +9,7 @@ SaaS, no monthly fees: the module talks to Google directly using your own
 OAuth credentials.
 
 > Feed Forge is a free, open‑source module (AFL-3.0). If it saves you time, you can
-> support development via the in‑module "Buy me a coffee" link.
+> support development on [Ko-fi](https://ko-fi.com/quinceproject).
 
 ---
 
@@ -138,6 +138,15 @@ page.
 
 The module targets PrestaShop 8.0–9.x on PHP 8.1+. See [`feedforge/`](feedforge/)
 for the full source.
+
+## Support
+
+- ☕ [Support on Ko-fi](https://ko-fi.com/quinceproject): if Feed Forge saves you time
+- 🐛 [GitHub Issues](https://github.com/GajewskiMarcin/FeedForge/issues): bug reports and ideas for development
+
+### From the same author
+
+**[Quince Project](https://quinceproject.github.io/)**: a theme and content engine for PrestaShop, extended with a suite of functional modules. Free and open source under OSL-3.0.
 
 ## License
 
